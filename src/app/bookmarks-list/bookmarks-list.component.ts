@@ -57,15 +57,6 @@ export class BookmarksListComponent implements OnInit, OnDestroy {
         this.selectedBookmarks.forEach(b => this.bookmarksStorage.delete(b));
         this.loadBookmarks();
     }
-    edit(bookmark: Bookmark) {
-        // Simple inline edit for demo: prompt for new title
-        const newTitle = prompt('Edit bookmark title:', bookmark.title);
-        if (newTitle?.trim() && newTitle !== bookmark.title) {
-            bookmark.title = newTitle.trim();
-            this.bookmarksStorage.update(bookmark);
-            this.loadBookmarks();
-        }
-    }
     filterByTag(tag: string) {
         if (this.selectedTag === tag) {
             this.selectedTag = null; // Deselect if already selected
@@ -89,6 +80,7 @@ export class BookmarksListComponent implements OnInit, OnDestroy {
     toggleSelectAll() {
         this.bookmarks.forEach(b => b.selected = this.selectAllChecked);
         this.updateSelectedBookmarks();
+        this.updateSelectAllChecked();
     }
     toggleRemoveMode() {
         this.removeMode = !this.removeMode;
@@ -110,19 +102,6 @@ export class BookmarksListComponent implements OnInit, OnDestroy {
             this.bookmarks.forEach(b => b.selected = false);
             this.selectAllChecked = false;
             this.selectedBookmarks = [];
-        }
-    }
-    batchEditSelected() {
-        if (!this.editMode) return;
-        // For demo: prompt for new tag to add to all selected bookmarks
-        const newTag = prompt('Enter a tag to add to all selected bookmarks:');
-        if (newTag?.trim()) {
-            this.selectedBookmarks.forEach(b => {
-                if (!b.tags) b.tags = [];
-                if (!b.tags.includes(newTag)) b.tags.push(newTag);
-                this.bookmarksStorage.update(b);
-            });
-            this.loadBookmarks();
         }
     }
     updateSelectedBookmarks() {

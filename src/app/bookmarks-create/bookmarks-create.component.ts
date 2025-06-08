@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { CommonModule } from '@angular/common';
 import { BookmarksStorageService } from '../services/bookmarks-storage.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Component({
     selector: 'bookmarks-create',
@@ -55,7 +56,8 @@ export class BookmarksCreateComponent {
     onSubmit() {
         if (this.form.valid) {
             this.form.patchValue({ tags: this.tags });
-            this.bookmarksStorage.add(this.form.value);
+            const bookmark = { ...this.form.value, uuid: uuidv4() };
+            this.bookmarksStorage.add(bookmark);
             this.form.reset();
             this.tags = [];
             this.setFormDefaults();
