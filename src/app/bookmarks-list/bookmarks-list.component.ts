@@ -9,6 +9,7 @@ import { Subscription } from 'rxjs';
 import { ChromeTabsService } from '../services/chrome-tabs.service';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
+import { BookmarkSchedulerService } from '../services/bookmark-scheduler.service';
 
 @Component({
     selector: 'bookmarks-list',
@@ -26,11 +27,12 @@ export class BookmarksListComponent implements OnInit, OnDestroy {
     removeMode = false;
     editMode = false;
     private subscription?: Subscription;
-    constructor(private readonly bookmarksStorage: BookmarksStorageService, private readonly chromeTabs: ChromeTabsService) { }
+    constructor(private readonly bookmarksStorage: BookmarksStorageService, private readonly chromeTabs: ChromeTabsService, private readonly bookmarkScheduler: BookmarkSchedulerService) { }
     ngOnInit() {
         this.loadBookmarks();
         this.subscription = this.bookmarksStorage.bookmarksChanged.subscribe(() => {
             this.loadBookmarks();
+            this.bookmarkScheduler.startScheduler();
         });
     }
     ngOnDestroy() {

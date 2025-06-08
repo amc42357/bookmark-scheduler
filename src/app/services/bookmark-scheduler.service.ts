@@ -1,33 +1,41 @@
 import { Injectable } from '@angular/core';
+import { BookmarksStorageService } from './bookmarks-storage.service';
 
-// TODO: Implement a service that checks bookmarks at the scheduled time and opens them in a new tab or shows an alert.
 @Injectable({ providedIn: 'root' })
 export class BookmarkSchedulerService {
-    private intervalId: any;
+    private timeoutId: any;
 
-    constructor() { }
+    constructor(private readonly bookmarkStorage: BookmarksStorageService) {
+    }
 
-    startScheduler(bookmarks: { url: string; date: Date }[]) {
-        this.intervalId = setInterval(() => {
-            const now = new Date();
-            bookmarks.forEach(bookmark => {
-                // Compare up to the minute
-                if (
-                    bookmark.date.getFullYear() === now.getFullYear() &&
-                    bookmark.date.getMonth() === now.getMonth() &&
-                    bookmark.date.getDate() === now.getDate() &&
-                    bookmark.date.getHours() === now.getHours() &&
-                    bookmark.date.getMinutes() === now.getMinutes()
-                ) {
-                    // Open the link or show an alert
-                    window.open(bookmark.url, '_blank');
-                    // Or: alert(`Time to visit: ${bookmark.url}`);
-                }
-            });
-        }, 60000); // Check every minute
+    startScheduler() {
+        this.stopScheduler();
+        const bookmarks = this.bookmarkStorage.getAll();
+        if (!bookmarks.length) return;
+        // Sort bookmarks by date+time ascending
+        const sorted = [...bookmarks].sort((a, b) => {
+            const aDate = new Date(`${a.date}T${a.time}`);
+            const bDate = new Date(`${b.date}T${b.time}`);
+            return aDate.getTime() - bDate.getTime();
+        });
+        const now = new Date();
+        // Find the next bookmark in the future
+        const next = sorted.find(b => {
+            const bDate = new Date(`${b.date}T${b.time}`);
+            return bDate > now;
+        });
+        if (!next) return;
+        const nextDate = new Date(`${next.date}T${next.time}`);
+        const msUntilNext = nextDate.getTime() - now.getTime();
+        this.timeoutId = setTimeout(() => {
+            window.open(next.url, '_blank');
+            // Remove the triggered bookmark and schedule the next one
+            this.bookmarkStorage.delete(next);
+            this.startScheduler();
+        }, msUntilNext);
     }
 
     stopScheduler() {
-        clearInterval(this.intervalId);
+        clearTimeout(this.timeoutId);
     }
 }
