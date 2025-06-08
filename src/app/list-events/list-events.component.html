@@ -1,0 +1,24 @@
+<mat-list class="event-list">
+  <mat-list-item *ngFor="let event of events" class="event-list-item">
+    <div class="event-row-top">
+      <div class="event-name">
+        <strong>{{ event.name }}</strong>
+      </div>
+      <div class="event-actions">
+        <button mat-icon-button color="accent" aria-label="Edit Event" (click)="editEvent(event)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" aria-label="Delete Event" (click)="deleteEvent(event)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+    <div class="event-row-bottom">
+      <span class="event-url"><mat-icon inline>link</mat-icon> <a [href]="event.url" target="_blank">{{ event.url }}</a></span>
+    </div>
+    <div class="event-row-datetime">
+      <span class="event-date"><mat-icon inline>calendar_today</mat-icon> {{ event.date | date:'mediumDate' }}</span>
+      <span class="event-time"><mat-icon inline>schedule</mat-icon> {{ event.time }}</span>
+    </div>
+  </mat-list-item>
+</mat-list>

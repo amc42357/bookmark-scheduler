@@ -2,6 +2,7 @@
     "manifest_version": 3,
     "name": "Bookmark Scheduler",
     "version": "1.0",
+    "description": "Schedule your bookmarks to open at specific times",
     "action": {
       "default_popup": "index.html"
     },
@@ -9,8 +10,10 @@
       "service_worker": "background.js"
     },
     "permissions": [
-      "tabs",
-      "scripting",
-      "clipboardWrite"
+        "tabs",
+        "storage",
+        "notifications",
+        "alarms",
+        "clipboardWrite"
     ]
   }
