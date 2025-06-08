@@ -7,8 +7,6 @@ type Bookmark = {
     uuid: string;
 };
 
-let timerId: ReturnType<typeof setTimeout> | undefined;
-
 function checkAndOpenDueBookmarks() {
     chrome.storage.local.get('bookmarks', ({ bookmarks = [] }: { bookmarks?: Bookmark[] }) => {
         const now = new Date();
@@ -36,11 +34,19 @@ function checkAndOpenDueBookmarks() {
 }
 
 function scheduleNextCheckWithTime(nextTime: number | null) {
-    if (timerId !== undefined) clearTimeout(timerId);
+    chrome.alarms.clear('bookmarkCheck');
     if (nextTime !== null) {
-        const delay = Math.max(nextTime - Date.now(), 0);
-        timerId = setTimeout(checkAndOpenDueBookmarks, delay);
+        const delayMs = Math.max(nextTime - Date.now(), 0);
+        // chrome.alarms uses minutes, so convert ms to minutes (min 0.1 min)
+        const delayMin = Math.max(delayMs / 60000, 0.1);
+        chrome.alarms.create('bookmarkCheck', { delayInMinutes: delayMin });
     }
 }
+
+chrome.alarms.onAlarm.addListener(alarm => {
+    if (alarm.name === 'bookmarkCheck') {
+        checkAndOpenDueBookmarks();
+    }
+});
 
 checkAndOpenDueBookmarks();
