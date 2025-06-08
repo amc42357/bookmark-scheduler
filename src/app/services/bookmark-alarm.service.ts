@@ -3,7 +3,7 @@ import { BookmarksStorageService, Bookmark } from './bookmarks-storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class BookmarkAlarmService {
-    private alarmedUuids = new Set<string>();
+    private readonly alarmedUuids = new Set<string>();
     private intervalId: any;
 
     constructor(private readonly bookmarksStorage: BookmarksStorageService) {
