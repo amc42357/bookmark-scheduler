@@ -5,7 +5,8 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development"
+    "watch": "ng build --watch --configuration development",
+    "postbuild": "tsc src/browser/background.ts --outDir dist/browser --module none --target ES2020 --moduleResolution node --esModuleInterop"
   },
   "private": true,
   "dependencies": {

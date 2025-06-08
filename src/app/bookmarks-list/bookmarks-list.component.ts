@@ -36,8 +36,9 @@ export class BookmarksListComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.subscription?.unsubscribe();
     }
-    loadBookmarks() {
-        this.bookmarks = this.bookmarksStorage.getAll().map(b => ({ ...b, selected: false }));
+    async loadBookmarks() {
+        const bookmarks = await this.bookmarksStorage.getAll();
+        this.bookmarks = bookmarks.map(b => ({ ...b, selected: false }));
         this.updateAllTags();
         this.updateSelectedBookmarks();
         this.updateSelectAllChecked();
@@ -47,15 +48,17 @@ export class BookmarksListComponent implements OnInit, OnDestroy {
         this.bookmarks.forEach(b => (b.tags ?? []).forEach(t => tagSet.add(t)));
         this.allTags = Array.from(tagSet).sort((a, b) => a.localeCompare(b));
     }
-    remove(bookmark: Bookmark) {
+    async remove(bookmark: Bookmark) {
         if (!this.removeMode) return;
-        this.bookmarksStorage.delete(bookmark);
-        this.loadBookmarks();
+        await this.bookmarksStorage.delete(bookmark);
+        await this.loadBookmarks();
     }
-    removeSelected() {
+    async removeSelected() {
         if (!this.removeMode) return;
-        this.selectedBookmarks.forEach(b => this.bookmarksStorage.delete(b));
-        this.loadBookmarks();
+        for (const b of this.selectedBookmarks) {
+            await this.bookmarksStorage.delete(b);
+        }
+        await this.loadBookmarks();
     }
     filterByTag(tag: string) {
         if (this.selectedTag === tag) {

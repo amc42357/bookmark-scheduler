@@ -3,7 +3,6 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { BookmarksCreateComponent } from './bookmarks-create/bookmarks-create.component';
 import { BookmarksListComponent } from './bookmarks-list/bookmarks-list.component';
-import { BookmarkAlarmService } from './services/bookmark-alarm.service';
 
 @Component({
   selector: 'app-root',
@@ -13,5 +12,4 @@ import { BookmarkAlarmService } from './services/bookmark-alarm.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  constructor(private readonly alarmService: BookmarkAlarmService) { }
 }

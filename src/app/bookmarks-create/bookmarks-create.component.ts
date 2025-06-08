@@ -59,11 +59,11 @@ export class BookmarksCreateComponent {
             time: `${hh}:${min}`
         });
     }
-    onSubmit() {
+    async onSubmit() {
         if (this.form.valid) {
             this.form.patchValue({ tags: this.tags });
             const bookmark = { ...this.form.value, uuid: uuidv4() };
-            this.bookmarksStorage.add(bookmark);
+            await this.bookmarksStorage.add(bookmark);
             this.form.reset();
             this.tags = [];
             this.setFormDefaults();

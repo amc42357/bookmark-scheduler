@@ -18,9 +18,12 @@ export class BookmarksStorageService {
     private readonly STORAGE_KEY = 'bookmarks';
     bookmarksChanged = new Subject<void>();
 
-    getAll(): Bookmark[] {
-        const data = localStorage.getItem(this.STORAGE_KEY);
-        return data ? JSON.parse(data) : [];
+    async getAll(): Promise<Bookmark[]> {
+        return new Promise<Bookmark[]>((resolve) => {
+            chrome.storage.local.get([this.STORAGE_KEY], (result) => {
+                resolve(result[this.STORAGE_KEY] ?? []);
+            });
+        });
     }
 
     private getInsertIndex(bookmarks: Bookmark[], bookmark: Bookmark): number {
@@ -31,47 +34,61 @@ export class BookmarksStorageService {
         });
     }
 
-    add(bookmark: Bookmark): void {
-        this.removePastBookmarks();
-        const bookmarks = this.getAll();
+    async add(bookmark: Bookmark): Promise<void> {
+        await this.removePastBookmarks();
+        const bookmarks = await this.getAll();
         const insertIndex = this.getInsertIndex(bookmarks, bookmark);
         if (insertIndex === -1) {
             bookmarks.push(bookmark);
         } else {
             bookmarks.splice(insertIndex, 0, bookmark);
         }
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(bookmarks));
-        this.bookmarksChanged.next();
+        await new Promise<void>(resolve => {
+            chrome.storage.local.set({ [this.STORAGE_KEY]: bookmarks }, () => {
+                this.bookmarksChanged.next();
+                resolve();
+            });
+        });
     }
 
-    delete(bookmark: Bookmark): void {
-        const bookmarks = this.getAll();
+    async delete(bookmark: Bookmark): Promise<void> {
+        const bookmarks = await this.getAll();
         const index = bookmarks.findIndex(b => b.uuid === bookmark.uuid);
         if (index === -1)
             return;
         bookmarks.splice(index, 1);
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(bookmarks));
-        this.bookmarksChanged.next();
+        await new Promise<void>(resolve => {
+            chrome.storage.local.set({ [this.STORAGE_KEY]: bookmarks }, () => {
+                this.bookmarksChanged.next();
+                resolve();
+            });
+        });
     }
 
-    clear(): void {
-        localStorage.removeItem(this.STORAGE_KEY);
-        this.bookmarksChanged.next();
+    async clear(): Promise<void> {
+        await new Promise<void>(resolve => {
+            chrome.storage.local.remove(this.STORAGE_KEY, () => {
+                this.bookmarksChanged.next();
+                resolve();
+            });
+        });
     }
 
     /**
      * Removes bookmarks whose date and time are before now.
      */
-    private removePastBookmarks(): void {
+    private async removePastBookmarks(): Promise<void> {
         const now = new Date();
-        // Read bookmarks directly from localStorage to avoid recursion
-        const data = localStorage.getItem(this.STORAGE_KEY);
-        const bookmarks: Bookmark[] = data ? JSON.parse(data) : [];
+        const bookmarks: Bookmark[] = await this.getAll();
         const filtered = bookmarks.filter(b => {
             const bDateTime = new Date(`${b.date}T${b.time}`);
             return bDateTime.getTime() >= now.getTime();
         });
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(filtered));
-        this.bookmarksChanged.next();
+        await new Promise<void>(resolve => {
+            chrome.storage.local.set({ [this.STORAGE_KEY]: filtered }, () => {
+                this.bookmarksChanged.next();
+                resolve();
+            });
+        });
     }
 }

@@ -8,6 +8,10 @@
     },
     "permissions": [
         "tabs",
-        "storage"
-    ]
+        "storage",
+        "alarms"
+    ],
+    "background": {
+      "service_worker": "background.js"
+    }
   }
