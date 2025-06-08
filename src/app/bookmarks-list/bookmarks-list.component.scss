@@ -8,10 +8,13 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
-h2 {
+h2, .empty-message, .batch-actions, .tag-filter-bar {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+h2 {
   font-size: 1.5rem;
   margin-bottom: 1.5rem;
 }
@@ -20,9 +23,6 @@ h2 {
   text-align: center;
   color: #888;
   margin: 2rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
   justify-content: center;
 }
 
@@ -36,11 +36,10 @@ h2 {
   margin-bottom: 1rem;
   box-shadow: 0 1px 4px rgba(0,0,0,0.04);
   flex-wrap: wrap;
-}
-
-.bookmark-card.remove-mode {
-  border: 2px solid #e53e3e;
-  background: #fff5f5;
+  &.remove-mode {
+    border: 2px solid #e53e3e;
+    background: #fff5f5;
+  }
 }
 
 .bookmark-info {
@@ -60,11 +59,9 @@ h2 {
   cursor: pointer;
   color: #3182ce;
   text-decoration: underline;
-}
-
-.bookmark-title:hover {
-  color: #2b6cb0;
-  text-decoration: underline;
+  &:hover {
+    color: #2b6cb0;
+  }
 }
 
 .bookmark-actions {
@@ -75,19 +72,15 @@ h2 {
 }
 
 .batch-actions {
-  display: flex;
-  align-items: center;
   gap: 1rem;
   margin-bottom: 1rem;
-}
-
-.batch-actions .active {
-  background: #e53e3e;
-  color: #fff;
-}
-
-.batch-actions button {
-  transition: background 0.2s, color 0.2s;
+  .active {
+    background: #e53e3e;
+    color: #fff;
+  }
+  button {
+    transition: background 0.2s, color 0.2s;
+  }
 }
 
 .bookmark-tags {
@@ -104,17 +97,13 @@ mat-chip {
   margin-right: 0.25rem;
   margin-bottom: 0.25rem;
   cursor: pointer;
-}
-
-mat-chip[selected], mat-chip[color="primary"] {
-  background: #3182ce;
-  color: #fff;
+  &[selected], &[color="primary"] {
+    background: #3182ce;
+    color: #fff;
+  }
 }
 
 .tag-filter-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
   margin-bottom: 1rem;
 }
 

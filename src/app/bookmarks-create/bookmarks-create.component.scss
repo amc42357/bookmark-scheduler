@@ -1,20 +1,36 @@
+/* Define color and style variables */
+$form-radius: 16px;
+$form-shadow: 0 4px 24px rgba(0,0,0,0.08);
+$form-bg: #fff;
+$form-padding: 1rem 2.5rem;
+$input-radius: 8px;
+$input-bg: #f9fafb;
+$input-border: #cbd5e1;
+$input-focus: #3182ce;
+$text-main: #2d3748;
+$text-label: #4a5568;
+$error-color: #e53e3e;
+$secondary-bg: #edf2f7;
+$chip-bg: #e2e8f0;
+$chip-color: #2d3748;
+
 /* Modern, clean, and responsive styles for the create bookmark form */
 .form-container {
   max-width: 400px;
-  padding: 1rem 2.5rem;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  padding: $form-padding;
+  background: $form-bg;
+  border-radius: $form-radius;
+  box-shadow: $form-shadow;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-}
 
-.form-container h2 {
-  text-align: center;
-  margin-bottom: 1rem;
-  color: #2d3748;
-  font-weight: 600;
+  h2 {
+    text-align: center;
+    margin-bottom: 1rem;
+    color: $text-main;
+    font-weight: 600;
+  }
 }
 
 .form-group {
@@ -25,7 +41,7 @@
 
 label {
   font-size: 1rem;
-  color: #4a5568;
+  color: $text-label;
   font-weight: 500;
 }
 
@@ -34,20 +50,20 @@ input[type="url"],
 input[type="date"],
 input[type="time"] {
   padding: 0.6rem 1rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  border: 1px solid $input-border;
+  border-radius: $input-radius;
   font-size: 1rem;
-  background: #f9fafb;
+  background: $input-bg;
   transition: border 0.2s;
-}
 
-input:focus {
-  border-color: #3182ce;
-  outline: none;
+  &:focus {
+    border-color: $input-focus;
+    outline: none;
+  }
 }
 
 .error {
-  color: #e53e3e;
+  color: $error-color;
   font-size: 0.9rem;
 }
 
@@ -58,8 +74,8 @@ input:focus {
 }
 
 button.secondary {
-  background: #edf2f7;
-  color: #2d3748;
+  background: $secondary-bg;
+  color: $text-main;
   border: none;
   padding: 0.5rem 1.2rem;
   border-radius: 6px;
@@ -71,13 +87,13 @@ button.secondary {
 }
 
 mat-chip {
-  background: #e2e8f0;
-  color: #2d3748;
+  background: $chip-bg;
+  color: $chip-color;
   margin-right: 0.25rem;
   margin-bottom: 0.25rem;
-}
 
-mat-chip mat-icon {
-  font-size: 16px;
-  margin-left: 4px;
+  mat-icon {
+    font-size: 16px;
+    margin-left: 4px;
+  }
 }

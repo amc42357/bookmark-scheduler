@@ -23,9 +23,22 @@ export class BookmarksStorageService {
         return data ? JSON.parse(data) : [];
     }
 
+    private getInsertIndex(bookmarks: Bookmark[], bookmark: Bookmark): number {
+        const newDateTime = new Date(`${bookmark.date}T${bookmark.time}`);
+        return bookmarks.findIndex(b => {
+            const bDateTime = new Date(`${b.date}T${b.time}`);
+            return newDateTime.getTime() < bDateTime.getTime();
+        });
+    }
+
     add(bookmark: Bookmark): void {
         const bookmarks = this.getAll();
-        bookmarks.push(bookmark);
+        const insertIndex = this.getInsertIndex(bookmarks, bookmark);
+        if (insertIndex === -1) {
+            bookmarks.push(bookmark);
+        } else {
+            bookmarks.splice(insertIndex, 0, bookmark);
+        }
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(bookmarks));
         this.bookmarksChanged.next();
     }
@@ -33,11 +46,11 @@ export class BookmarksStorageService {
     delete(bookmark: Bookmark): void {
         const bookmarks = this.getAll();
         const index = bookmarks.findIndex(b => b.uuid === bookmark.uuid);
-        if (index !== -1) {
-            bookmarks.splice(index, 1);
-            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(bookmarks));
-            this.bookmarksChanged.next();
-        }
+        if (index === -1)
+            return;
+        bookmarks.splice(index, 1);
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(bookmarks));
+        this.bookmarksChanged.next();
     }
 
     clear(): void {
