@@ -19,7 +19,6 @@ export class BookmarksStorageService {
     bookmarksChanged = new Subject<void>();
 
     getAll(): Bookmark[] {
-        this.removePastBookmarks();
         const data = localStorage.getItem(this.STORAGE_KEY);
         return data ? JSON.parse(data) : [];
     }
@@ -33,6 +32,7 @@ export class BookmarksStorageService {
     }
 
     add(bookmark: Bookmark): void {
+        this.removePastBookmarks();
         const bookmarks = this.getAll();
         const insertIndex = this.getInsertIndex(bookmarks, bookmark);
         if (insertIndex === -1) {
