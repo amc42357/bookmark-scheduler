@@ -28,28 +28,28 @@ export class BookmarkAlarmService {
             return;
         }
         console.log(`Checking ${bookmarks.length} bookmarks for alarms at ${now.toISOString()}`);
-        // Only process the next upcoming bookmark within 5 minutes
-        bookmarks
+        const currentBookmarks = bookmarks
             .filter(bookmark => {
                 if (this.alarmedUuids.has(bookmark.uuid)) return false;
                 const bookmarkDate = new Date(`${bookmark.date}T${bookmark.time}`);
                 const diff = bookmarkDate.getTime() - now.getTime();
                 return diff <= 5 * 60 * 1000;
-            }).forEach(bookmark => {
-                const bookmarkDate = new Date(`${bookmark.date}T${bookmark.time}`);
-                const diff = bookmarkDate.getTime() - now.getTime();
-                this.startRoutingForBookmark(bookmark, diff);
-                this.alarmedUuids.add(bookmark.uuid);
             });
+        currentBookmarks.forEach(bookmark => {
+            const bookmarkDate = new Date(`${bookmark.date}T${bookmark.time}`);
+            const diff = bookmarkDate.getTime() - now.getTime();
+            this.startRoutingForBookmark(bookmark, diff, currentBookmarks.length > 1);
+            this.alarmedUuids.add(bookmark.uuid);
+        });
     }
 
-    private startRoutingForBookmark(bookmark: Bookmark, msUntilAlarm: number) {
+    private startRoutingForBookmark(bookmark: Bookmark, msUntilAlarm: number, background: boolean) {
         console.log(`Starting timer for bookmark: ${bookmark.title} (${bookmark.uuid}), will trigger in ${msUntilAlarm} ms at ${bookmark.date}T${bookmark.time}`);
         const interval = setInterval(() => {
             const now = new Date();
             const bookmarkDate = new Date(`${bookmark.date}T${bookmark.time}`);
             if (now >= bookmarkDate) {
-                this.triggerAlarm(bookmark);
+                this.triggerAlarm(bookmark, background);
                 clearInterval(interval);
             } else {
                 this.bookmarksStorage.bookmarksChanged.next();
@@ -57,8 +57,8 @@ export class BookmarkAlarmService {
         }, 1000);
     }
 
-    private triggerAlarm(bookmark: Bookmark) {
-        this.chromeTabs.openBookmark(bookmark);
+    private triggerAlarm(bookmark: Bookmark, background: boolean) {
+        this.chromeTabs.openBookmark(bookmark, background);
         this.bookmarksStorage.delete(bookmark);
         this.alarmedUuids.delete(bookmark.uuid);
     }
