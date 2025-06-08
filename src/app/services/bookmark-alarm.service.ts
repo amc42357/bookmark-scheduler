@@ -5,7 +5,7 @@ import { ChromeTabsService } from './chrome-tabs.service';
 @Injectable({ providedIn: 'root' })
 export class BookmarkAlarmService {
     private readonly alarmedUuids = new Set<string>();
-    private intervalId: any;
+    private intervalId!: any;
 
     constructor(
         private readonly bookmarksStorage: BookmarksStorageService,
@@ -15,27 +15,36 @@ export class BookmarkAlarmService {
     }
 
     private startAlarmChecker() {
+        console.log('BookmarkAlarmService initialized, starting alarm checker...');
         this.checkAlarms();
-        this.intervalId = setInterval(() => this.checkAlarms(), 30000);
+        this.intervalId = setInterval(() => this.checkAlarms(), 5000);
     }
 
     private checkAlarms() {
         const bookmarks: Bookmark[] = this.bookmarksStorage.getAll();
         const now = new Date();
-        bookmarks.forEach(bookmark => {
-            if (this.alarmedUuids.has(bookmark.uuid)) return;
-            const bookmarkDate = new Date(`${bookmark.date}T${bookmark.time}`);
-            // Check if the alarm is within 5 minutes ahead
-            const diff = bookmarkDate.getTime() - now.getTime();
-            if (diff > 0 && diff <= 5 * 60 * 1000) {
-                // Start routing every 1000ms until the alarm time is reached
+        if (!bookmarks || bookmarks.length === 0) {
+            console.log('No bookmarks found, skipping alarm check.');
+            return;
+        }
+        console.log(`Checking ${bookmarks.length} bookmarks for alarms at ${now.toISOString()}`);
+        // Only process the next upcoming bookmark within 5 minutes
+        bookmarks
+            .filter(bookmark => {
+                if (this.alarmedUuids.has(bookmark.uuid)) return false;
+                const bookmarkDate = new Date(`${bookmark.date}T${bookmark.time}`);
+                const diff = bookmarkDate.getTime() - now.getTime();
+                return diff <= 5 * 60 * 1000;
+            }).forEach(bookmark => {
+                const bookmarkDate = new Date(`${bookmark.date}T${bookmark.time}`);
+                const diff = bookmarkDate.getTime() - now.getTime();
                 this.startRoutingForBookmark(bookmark, diff);
                 this.alarmedUuids.add(bookmark.uuid);
-            }
-        });
+            });
     }
 
     private startRoutingForBookmark(bookmark: Bookmark, msUntilAlarm: number) {
+        console.log(`Starting timer for bookmark: ${bookmark.title} (${bookmark.uuid}), will trigger in ${msUntilAlarm} ms at ${bookmark.date}T${bookmark.time}`);
         const interval = setInterval(() => {
             const now = new Date();
             const bookmarkDate = new Date(`${bookmark.date}T${bookmark.time}`);
@@ -49,9 +58,8 @@ export class BookmarkAlarmService {
     }
 
     private triggerAlarm(bookmark: Bookmark) {
-        // Open the bookmark in Chrome (or a new tab)
         this.chromeTabs.openBookmark(bookmark);
-        window.alert(`Bookmark Reminder!\n${bookmark.title}\n${bookmark.url}`);
         this.bookmarksStorage.delete(bookmark);
+        this.alarmedUuids.delete(bookmark.uuid);
     }
 }
