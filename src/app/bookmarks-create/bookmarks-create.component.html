@@ -1,1 +1,69 @@
-<h1>hi</h1>
+<div class="form-container">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <mat-form-field appearance="outline" class="form-group">
+      <mat-label>Title</mat-label>
+      <input matInput formControlName="title" placeholder="Bookmark title">
+      <mat-error *ngIf="form.get('title')?.touched && form.get('title')?.invalid">
+        Title is required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="form-group">
+      <mat-label>Date</mat-label>
+      <input matInput type="date" formControlName="date">
+      <mat-error *ngIf="form.get('date')?.touched && form.get('date')?.invalid">
+        Date is required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="form-group">
+      <mat-label>Time</mat-label>
+      <input matInput type="time" formControlName="time">
+      <mat-error *ngIf="form.get('time')?.touched && form.get('time')?.invalid">
+        Time is required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="form-group">
+      <mat-label>URL</mat-label>
+      <input matInput type="url" formControlName="url" placeholder="https://example.com">
+      <mat-error *ngIf="form.get('url')?.touched && form.get('url')?.invalid">
+        <ng-container *ngIf="form.get('url')?.errors?.['required']">URL is required</ng-container>
+        <ng-container *ngIf="form.get('url')?.errors?.['pattern']">Enter a valid URL</ng-container>
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="form-group">
+      <mat-label>Tags</mat-label>
+      <mat-chip-grid #chipGrid aria-label="Bookmark tags">
+        <mat-chip-row *ngFor="let tag of tags" [removable]="true" (removed)="removeTag(tag)">
+          {{ tag }}
+          <mat-icon matChipRemove>cancel</mat-icon>
+        </mat-chip-row>
+        <input
+          matChipInput
+          [matChipInputFor]="chipGrid"
+          [matChipInputSeparatorKeyCodes]="[13,188]"
+          [matChipInputAddOnBlur]="true"
+          (matChipInputTokenEnd)="addTag($event)"
+          placeholder="Add tag..."
+        />
+      </mat-chip-grid>
+    </mat-form-field>
+
+    <div class="form-actions">
+      <button mat-stroked-button color="accent" type="button" (click)="captureTabInfo()" matTooltip="Fill in the title and URL fields with the current browser tab's information" matTooltipShowDelay="300">
+        <mat-icon>link</mat-icon>
+        Tab
+      </button>
+      <button mat-stroked-button color="accent" type="button" (click)="captureNow()" matTooltip="Set the form's date and time fields to the current date and time" matTooltipShowDelay="300">
+        <mat-icon>schedule</mat-icon>
+        Now
+      </button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid" matTooltip="Save this bookmark with the provided details" matTooltipShowDelay="300">
+        <mat-icon>add_circle</mat-icon>
+        Save
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,1 +1,16 @@
-<h1>hi</h1>
+<mat-tab-group>
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <mat-icon>bookmark_add</mat-icon>
+      Create Bookmark
+    </ng-template>
+    <bookmarks-create></bookmarks-create>
+  </mat-tab>
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <mat-icon>bookmarks</mat-icon>
+      Bookmarks List
+    </ng-template>
+    <bookmarks-list></bookmarks-list>
+  </mat-tab>
+</mat-tab-group>

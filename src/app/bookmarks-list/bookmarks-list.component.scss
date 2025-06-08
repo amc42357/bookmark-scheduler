@@ -1,0 +1,113 @@
+// Converted from SASS to SCSS syntax
+.bookmarks-list-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.empty-message {
+  text-align: center;
+  color: #888;
+  margin: 2rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.bookmark-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: #f7f7f7;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  flex-wrap: wrap;
+}
+
+.bookmark-info {
+  flex: 1 1 60%;
+  min-width: 200px;
+}
+
+.bookmark-title, .bookmark-url, .bookmark-date-time {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  word-break: break-all;
+}
+
+.bookmark-title {
+  cursor: pointer;
+  color: #3182ce;
+  text-decoration: underline;
+}
+
+.bookmark-title:hover {
+  color: #2b6cb0;
+  text-decoration: underline;
+}
+
+.bookmark-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.bookmark-tags {
+  margin-top: 0.25rem;
+}
+
+mat-chip-list {
+  margin-bottom: 0.5rem;
+}
+
+mat-chip {
+  background: #e2e8f0;
+  color: #2d3748;
+  margin-right: 0.25rem;
+  margin-bottom: 0.25rem;
+  cursor: pointer;
+}
+
+mat-chip[selected], mat-chip[color="primary"] {
+  background: #3182ce;
+  color: #fff;
+}
+
+.tag-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 600px) {
+  .bookmarks-list-container {
+    padding: 0.5rem;
+  }
+  .bookmark-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .bookmark-actions {
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+  }
+}

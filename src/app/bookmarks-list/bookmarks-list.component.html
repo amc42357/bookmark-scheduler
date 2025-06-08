@@ -1,1 +1,44 @@
-<h1>hi</h1>
+<!-- Responsive bookmarks list with icons, edit and remove buttons -->
+<div class="bookmarks-list-container">
+  <div class="tag-filter-bar" *ngIf="allTags.length > 0">
+    <span>Filter by tag:</span>
+    <mat-chip-listbox>
+      <mat-chip-option *ngFor="let tag of allTags" [selected]="selectedTag === tag" (click)="filterByTag(tag)" (keydown.enter)="filterByTag(tag)">
+        {{ tag }}
+      </mat-chip-option>
+      <mat-chip-option *ngIf="selectedTag" color="primary" (click)="clearTagFilter()" (keydown.enter)="clearTagFilter()">
+        Clear
+      </mat-chip-option>
+    </mat-chip-listbox>
+  </div>
+  <div *ngIf="bookmarks.length === 0" class="empty-message">
+    <mat-icon>info</mat-icon> No bookmarks found.
+  </div>
+  <div *ngFor="let bookmark of filteredBookmarks()" class="bookmark-card">
+    <div class="bookmark-info">
+      <button class="bookmark-title" [ngStyle]="{cursor: 'pointer'}" (click)="openLink(bookmark)">
+        <mat-icon>label</mat-icon>
+        <span>{{ bookmark.title }}</span>
+      </button>
+      <div class="bookmark-date-time">
+        <mat-icon>event</mat-icon>
+        <span>{{ bookmark.date }}</span>
+        <mat-icon>schedule</mat-icon>
+        <span>{{ bookmark.time }}</span>
+      </div>
+      <div class="bookmark-tags">
+        <mat-chip-listbox aria-label="Bookmark tags">
+          <mat-chip-option *ngFor="let tag of bookmark.tags">{{ tag }}</mat-chip-option>
+        </mat-chip-listbox>
+      </div>
+    </div>
+    <div class="bookmark-actions">
+      <button mat-icon-button color="primary" (click)="edit(bookmark)" title="Edit">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button color="warn" (click)="remove(bookmark)" title="Remove">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>
