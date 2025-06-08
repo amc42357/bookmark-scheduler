@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { Subscription } from 'rxjs';
+import { ChromeTabsService } from '../services/chrome-tabs.service';
 
 @Component({
     selector: 'bookmarks-list',
@@ -19,7 +20,7 @@ export class BookmarksListComponent implements OnInit, OnDestroy {
     allTags: string[] = [];
     selectedTag: string | null = null;
     private subscription?: Subscription;
-    constructor(private readonly bookmarksStorage: BookmarksStorageService) { }
+    constructor(private readonly bookmarksStorage: BookmarksStorageService, private readonly chromeTabs: ChromeTabsService) { }
     ngOnInit() {
         this.loadBookmarks();
         this.subscription = this.bookmarksStorage.bookmarksChanged.subscribe(() => {
@@ -61,13 +62,8 @@ export class BookmarksListComponent implements OnInit, OnDestroy {
         return this.bookmarks.filter(b => (b.tags ?? []).includes(this.selectedTag!));
     }
     openLink(bookmark: Bookmark) {
-        if (bookmark.url && typeof chrome !== 'undefined' && chrome.tabs) {
-            chrome.tabs.query({ active: true, currentWindow: true }, (tabs: chrome.tabs.Tab[]) => {
-                if (tabs.length > 0 && tabs[0].id) {
-                    chrome.tabs.update(tabs[0].id, { url: bookmark.url });
-                }
-            });
-        } else if (bookmark.url) {
+        const handled = this.chromeTabs.openBookmark(bookmark);
+        if (!handled && bookmark.url) {
             window.location.href = bookmark.url;
         }
     }
