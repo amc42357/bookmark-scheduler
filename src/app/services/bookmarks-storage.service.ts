@@ -19,6 +19,7 @@ export class BookmarksStorageService {
     bookmarksChanged = new Subject<void>();
 
     getAll(): Bookmark[] {
+        this.removePastBookmarks();
         const data = localStorage.getItem(this.STORAGE_KEY);
         return data ? JSON.parse(data) : [];
     }
@@ -55,6 +56,20 @@ export class BookmarksStorageService {
 
     clear(): void {
         localStorage.removeItem(this.STORAGE_KEY);
+        this.bookmarksChanged.next();
+    }
+
+    /**
+     * Removes bookmarks whose date and time are before now.
+     */
+    private removePastBookmarks(): void {
+        const now = new Date();
+        const bookmarks = this.getAll();
+        const filtered = bookmarks.filter(b => {
+            const bDateTime = new Date(`${b.date}T${b.time}`);
+            return bDateTime.getTime() >= now.getTime();
+        });
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(filtered));
         this.bookmarksChanged.next();
     }
 }

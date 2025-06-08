@@ -1,14 +1,21 @@
 # Bookmark Scheduler – Project Source Directory Structure
 
-This project is an Angular-based browser extension for managing and scheduling bookmarks. Below is the structure of the `src` directory, with brief descriptions for each main component and service.
+This project is an Angular-based browser extension for managing and scheduling bookmarks. Below is the structure of the project, with brief descriptions for each main component and service.
 
 ## Top-Level Files
 
-- `index.html` – Main HTML entry point.
-- `main.ts` – Angular application bootstrap.
-- `background.js` – Extension background script.
-- `manifest.json` – Browser extension manifest.
-- `styles.sass` – Global styles.
+- `angular.json` – Angular workspace configuration.
+- `favicon.ico` – Project favicon.
+- `package.json` – Project dependencies and scripts.
+- `README.md` – Project documentation.
+- `tsconfig.app.json` – TypeScript configuration for the app.
+- `tsconfig.json` – Base TypeScript configuration.
+- `public/` – Static assets (e.g., `favicon.ico`).
+- `src/` – Application source code:
+  - `index.html` – Main HTML entry point.
+  - `main.ts` – Angular application bootstrap.
+  - `manifest.json` – Browser extension manifest.
+  - `styles.sass` – Global styles.
 
 ## Application Source (`src/app/`)
 
@@ -22,24 +29,16 @@ This project is an Angular-based browser extension for managing and scheduling b
   - `bookmarks-create.component.html` – Template for creation UI.
   - `bookmarks-create.component.scss` – Styles for creation UI.
 
-- `bookmarks-edit/` – Components for editing existing bookmarks.
-  - `bookmarks-edit.component.ts` – Logic for editing bookmarks.
-  - `bookmarks-edit.component.html` – Template for edit UI.
-  - `bookmarks-edit.component.scss` – Styles for edit UI.
-
 - `bookmarks-list/` – Components for listing all bookmarks.
   - `bookmarks-list.component.ts` – Logic for listing bookmarks.
   - `bookmarks-list.component.html` – Template for list UI.
   - `bookmarks-list.component.scss` – Styles for list UI.
 
-- `bookmarks-remove/` – Components for removing bookmarks.
-  - `bookmarks-remove.component.ts` – Logic for removing bookmarks.
-  - `bookmarks-remove.component.html` – Template for remove UI.
-  - `bookmarks-remove.component.scss` – Styles for remove UI.
-
 ### Services
 
 - `services/bookmarks-storage.service.ts` – Service for managing bookmark storage and persistence.
+- `services/bookmark-scheduler.service.ts` – Service for scheduling bookmark-related actions.
+- `services/chrome-tabs.service.ts` – Service for interacting with Chrome tabs API.
 
 ---
 
