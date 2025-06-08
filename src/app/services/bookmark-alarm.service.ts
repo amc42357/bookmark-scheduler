@@ -12,7 +12,7 @@ export class BookmarkAlarmService {
 
     private startAlarmChecker() {
         this.checkAlarms();
-        this.intervalId = setInterval(() => this.checkAlarms(), 30000); // check every 30 seconds
+        this.intervalId = setInterval(() => this.checkAlarms(), 30000);
     }
 
     private checkAlarms() {
@@ -21,16 +21,31 @@ export class BookmarkAlarmService {
         bookmarks.forEach(bookmark => {
             if (this.alarmedUuids.has(bookmark.uuid)) return;
             const bookmarkDate = new Date(`${bookmark.date}T${bookmark.time}`);
-            // Allow a 30s window for the alarm to trigger
-            if (Math.abs(bookmarkDate.getTime() - now.getTime()) < 30000) {
-                this.triggerAlarm(bookmark);
+            // Check if the alarm is within 5 minutes ahead
+            const diff = bookmarkDate.getTime() - now.getTime();
+            if (diff > 0 && diff <= 5 * 60 * 1000) {
+                // Start routing every 1000ms until the alarm time is reached
+                this.startRoutingForBookmark(bookmark, diff);
                 this.alarmedUuids.add(bookmark.uuid);
             }
         });
     }
 
+    private startRoutingForBookmark(bookmark: Bookmark, msUntilAlarm: number) {
+        const interval = setInterval(() => {
+            const now = new Date();
+            const bookmarkDate = new Date(`${bookmark.date}T${bookmark.time}`);
+            if (now >= bookmarkDate) {
+                this.triggerAlarm(bookmark);
+                clearInterval(interval);
+            } else {
+                this.bookmarksStorage.bookmarksChanged.next();
+            }
+        }, 1000);
+    }
+
     private triggerAlarm(bookmark: Bookmark) {
-        // You can replace this with a custom notification or sound
         window.alert(`Bookmark Reminder!\n${bookmark.title}\n${bookmark.url}`);
+        this.bookmarksStorage.delete(bookmark);
     }
 }

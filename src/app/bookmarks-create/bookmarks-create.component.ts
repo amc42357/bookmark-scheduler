@@ -83,16 +83,13 @@ export class BookmarksCreateComponent {
                     });
                 }
             });
-            console.log('Captured tab info using chrome.tabs API');
         } else {
             // Fallback for normal web usage
             this.form.patchValue({
                 title: document.title,
                 url: window.location.href
             });
-            console.log('Captured tab info using fallback method');
         }
-        console.log('Captured tab info:', this.form.value);
     }
 
     addTag(event: any) {
