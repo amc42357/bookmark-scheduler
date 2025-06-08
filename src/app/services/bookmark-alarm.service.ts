@@ -1,12 +1,16 @@
 import { Injectable } from '@angular/core';
 import { BookmarksStorageService, Bookmark } from './bookmarks-storage.service';
+import { ChromeTabsService } from './chrome-tabs.service';
 
 @Injectable({ providedIn: 'root' })
 export class BookmarkAlarmService {
     private readonly alarmedUuids = new Set<string>();
     private intervalId: any;
 
-    constructor(private readonly bookmarksStorage: BookmarksStorageService) {
+    constructor(
+        private readonly bookmarksStorage: BookmarksStorageService,
+        private readonly chromeTabs: ChromeTabsService
+    ) {
         this.startAlarmChecker();
     }
 
@@ -45,6 +49,8 @@ export class BookmarkAlarmService {
     }
 
     private triggerAlarm(bookmark: Bookmark) {
+        // Open the bookmark in Chrome (or a new tab)
+        this.chromeTabs.openBookmark(bookmark);
         window.alert(`Bookmark Reminder!\n${bookmark.title}\n${bookmark.url}`);
         this.bookmarksStorage.delete(bookmark);
     }
