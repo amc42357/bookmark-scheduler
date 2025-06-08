@@ -16,22 +16,16 @@ function checkAndOpenDueBookmarks() {
     if (isChecking) return;
     isChecking = true;
     chrome.storage.local.get('bookmarks', ({ bookmarks = [] }: { bookmarks?: Bookmark[] }) => {
-        const now = new Date();
-        // Split bookmarks into due and future
+        const now = Date.now();
         const due: Bookmark[] = [];
         let nextTime: number | null = null;
-        bookmarks.forEach(b => {
+        for (const b of bookmarks) {
             const t = new Date(`${b.date}T${b.time}`).getTime();
-            if (t <= now.getTime()) {
-                due.push(b);
-            } else if (nextTime === null || t < nextTime) {
-                nextTime = t;
-            }
-        });
-        // Open and remove due bookmarks
-        if (due.length > 0) {
-            const dueUrls = Array.from(new Set(due.map(b => b.url)));
-            dueUrls.forEach(url => chrome.tabs.create({ url }));
+            if (t <= now) due.push(b);
+            else if (nextTime === null || t < nextTime) nextTime = t;
+        }
+        if (due.length) {
+            openOrFocusTab(new Set(due.map(b => b.url)));
             const dueUuids = new Set(due.map(b => b.uuid));
             const remaining = bookmarks.filter(b => !dueUuids.has(b.uuid));
             chrome.storage.local.set({ bookmarks: remaining }, () => {
@@ -42,6 +36,48 @@ function checkAndOpenDueBookmarks() {
             scheduleNextCheckWithTime(nextTime);
             isChecking = false;
         }
+    });
+}
+
+/**
+ * Normalizes the URL by removing the trailing slash and ensuring consistent formatting.
+ */
+function normalizeUrl(url: string): string {
+    try {
+        const u = new URL(url);
+        // Remove trailing slash for consistency
+        let path = u.pathname.endsWith('/') && u.pathname !== '/' ? u.pathname.slice(0, -1) : u.pathname;
+        return `${u.origin}${path}${u.search}`;
+    } catch {
+        return url;
+    }
+}
+
+/**
+ * Checks if a tab with the given URL is open and focuses it, otherwise opens a new tab.
+ * Optimized for O(m + n) complexity by using a Map for tab lookup.
+ */
+function openOrFocusTab(urls: Set<string>) {
+    const urlsArray = Array.from(urls);
+    chrome.tabs.query({}, (tabs) => {
+        // Build a map of normalized tab URLs to tab objects for O(1) lookup
+        const tabMap = new Map<string, chrome.tabs.Tab>();
+        tabs.forEach(tab => {
+            if (tab.url) {
+                tabMap.set(normalizeUrl(tab.url), tab);
+            }
+        });
+        urlsArray.forEach((url, index) => {
+            const normalizedTarget = normalizeUrl(url);
+            const existingTab = tabMap.get(normalizedTarget);
+            console.log(`Checking URL: ${normalizedTarget}`);
+            console.log(tabMap);
+            if (existingTab?.id) {
+                chrome.tabs.update(existingTab.id, { active: index === 0 });
+            } else {
+                chrome.tabs.create({ url, active: index === 0 });
+            }
+        });
     });
 }
 
