@@ -7,12 +7,14 @@ export class ChromeTabsService {
         if (!bookmark.url || typeof chrome === 'undefined' || !chrome.tabs) return false;
 
         chrome.tabs.query({ url: bookmark.url }, ([tab]) => {
-            if (tab?.id) {
+            if (tab && typeof tab.id === 'number') {
                 chrome.tabs.update(tab.id, { active: true });
                 chrome.windows.update(tab.windowId, { focused: true });
             } else {
                 chrome.tabs.query({ active: true, currentWindow: true }, ([activeTab]) => {
-                    if (activeTab?.id) chrome.tabs.update(activeTab.id, { url: bookmark.url });
+                    if (activeTab && typeof activeTab.id === 'number') {
+                        chrome.tabs.update(activeTab.id, { url: bookmark.url });
+                    }
                 });
             }
         });
