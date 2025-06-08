@@ -64,7 +64,9 @@ export class BookmarksStorageService {
      */
     private removePastBookmarks(): void {
         const now = new Date();
-        const bookmarks = this.getAll();
+        // Read bookmarks directly from localStorage to avoid recursion
+        const data = localStorage.getItem(this.STORAGE_KEY);
+        const bookmarks: Bookmark[] = data ? JSON.parse(data) : [];
         const filtered = bookmarks.filter(b => {
             const bDateTime = new Date(`${b.date}T${b.time}`);
             return bDateTime.getTime() >= now.getTime();

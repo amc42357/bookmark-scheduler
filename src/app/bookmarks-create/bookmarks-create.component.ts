@@ -28,6 +28,7 @@ export class BookmarksCreateComponent {
     readonly form: FormGroup;
     tags: string[] = [];
     tagInput: string = '';
+    minDate: string;
     constructor(
         readonly fb: FormBuilder,
         readonly bookmarksStorage: BookmarksStorageService
@@ -39,6 +40,11 @@ export class BookmarksCreateComponent {
             url: ['', [Validators.required]],
             tags: [[]]
         });
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        this.minDate = `${yyyy}-${mm}-${dd}`;
         this.setFormDefaults();
     }
     private setFormDefaults() {

@@ -10,7 +10,7 @@
 
     <mat-form-field appearance="outline" class="form-group">
       <mat-label>Date</mat-label>
-      <input matInput type="date" formControlName="date">
+      <input matInput type="date" formControlName="date" [min]="minDate">
       <mat-error *ngIf="form.get('date')?.touched && form.get('date')?.invalid">
         Date is required
       </mat-error>
