@@ -1,6 +1,6 @@
 <!-- Responsive bookmarks list with icons, edit and remove buttons -->
 <div class="bookmarks-list-container">
-  <div class="tag-filter-bar" *ngIf="allTags.length > 0">
+  <div class="tag-filter-bar" *ngIf="allTags.length > 0 && bookmarks.length > 0">
     <span>Filter by tag:</span>
     <mat-chip-listbox>
       <mat-chip-option *ngFor="let tag of allTags" [selected]="selectedTag === tag" (click)="filterByTag(tag)" (keydown.enter)="filterByTag(tag)">
@@ -11,10 +11,29 @@
       </mat-chip-option>
     </mat-chip-listbox>
   </div>
+  <div class="batch-actions" *ngIf="bookmarks.length > 0">
+    <button mat-stroked-button color="warn" (click)="toggleRemoveMode()" [class.active]="removeMode">
+      <mat-icon>{{ removeMode ? 'close' : 'delete' }}</mat-icon>
+      {{ removeMode ? 'Cancel Remove' : 'Batch Remove' }}
+    </button>
+    <button mat-stroked-button color="primary" (click)="toggleEditMode()" [class.active]="editMode">
+      <mat-icon>{{ editMode ? 'close' : 'edit' }}</mat-icon>
+      {{ editMode ? 'Cancel Edit' : 'Batch Edit' }}
+    </button>
+    <ng-container *ngIf="removeMode">
+      <mat-checkbox [(ngModel)]="selectAllChecked" (change)="toggleSelectAll()">Select All</mat-checkbox>
+      <button mat-raised-button color="warn" (click)="removeSelected()" [disabled]="selectedBookmarks.length === 0">Remove Selected</button>
+    </ng-container>
+    <ng-container *ngIf="editMode">
+      <mat-checkbox [(ngModel)]="selectAllChecked" (change)="toggleSelectAll()">Select All</mat-checkbox>
+      <button mat-raised-button color="primary" (click)="batchEditSelected()" [disabled]="selectedBookmarks.length === 0">Edit Selected</button>
+    </ng-container>
+  </div>
   <div *ngIf="bookmarks.length === 0" class="empty-message">
     <mat-icon>info</mat-icon> No bookmarks found.
   </div>
-  <div *ngFor="let bookmark of filteredBookmarks()" class="bookmark-card">
+  <div *ngFor="let bookmark of filteredBookmarks(); let i = index" class="bookmark-card" [class.remove-mode]="removeMode || editMode">
+    <mat-checkbox *ngIf="removeMode || editMode" [(ngModel)]="bookmark.selected" (change)="onBookmarkSelectChange(bookmark)"></mat-checkbox>
     <div class="bookmark-info">
       <button class="bookmark-title" [ngStyle]="{cursor: 'pointer'}" (click)="openLink(bookmark)">
         <mat-icon>label</mat-icon>
@@ -35,9 +54,6 @@
     <div class="bookmark-actions">
       <button mat-icon-button color="primary" (click)="edit(bookmark)" title="Edit">
         <mat-icon>edit</mat-icon>
-      </button>
-      <button mat-icon-button color="warn" (click)="remove(bookmark)" title="Remove">
-        <mat-icon>delete</mat-icon>
       </button>
     </div>
   </div>

@@ -38,19 +38,9 @@ export class BookmarksCreateComponent {
             url: ['', [Validators.required]],
             tags: [[]]
         });
+        this.setFormDefaults();
     }
-    onSubmit() {
-        if (this.form.valid) {
-            this.form.patchValue({ tags: this.tags });
-            this.bookmarksStorage.add(this.form.value);
-            this.form.reset();
-            this.tags = [];
-        } else {
-            this.form.markAllAsTouched();
-        }
-    }
-
-    captureNow() {
+    private setFormDefaults() {
         const now = new Date();
         const yyyy = now.getFullYear();
         const mm = String(now.getMonth() + 1).padStart(2, '0');
@@ -62,9 +52,19 @@ export class BookmarksCreateComponent {
             time: `${hh}:${min}`
         });
     }
+    onSubmit() {
+        if (this.form.valid) {
+            this.form.patchValue({ tags: this.tags });
+            this.bookmarksStorage.add(this.form.value);
+            this.form.reset();
+            this.tags = [];
+            this.setFormDefaults();
+        } else {
+            this.form.markAllAsTouched();
+        }
+    }
 
     captureTabInfo() {
-        // For browsers without chrome.tabs (like normal web), fallback to window.title and window.location
         const chromeTabs = (window as any)?.chrome?.tabs;
         if (chromeTabs) {
             chromeTabs.query({ active: true, currentWindow: true }, (tabs: any[]) => {

@@ -38,6 +38,11 @@ h2 {
   flex-wrap: wrap;
 }
 
+.bookmark-card.remove-mode {
+  border: 2px solid #e53e3e;
+  background: #fff5f5;
+}
+
 .bookmark-info {
   flex: 1 1 60%;
   min-width: 200px;
@@ -69,6 +74,22 @@ h2 {
   align-items: flex-end;
 }
 
+.batch-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.batch-actions .active {
+  background: #e53e3e;
+  color: #fff;
+}
+
+.batch-actions button {
+  transition: background 0.2s, color 0.2s;
+}
+
 .bookmark-tags {
   margin-top: 0.25rem;
 }
@@ -95,6 +116,10 @@ mat-chip[selected], mat-chip[color="primary"] {
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 1rem;
+}
+
+mat-checkbox {
+  margin-right: 0.5rem;
 }
 
 @media (max-width: 600px) {
