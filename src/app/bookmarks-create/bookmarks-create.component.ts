@@ -64,6 +64,9 @@ export class BookmarksCreateComponent {
             this.form.patchValue({ tags: this.tags });
             const bookmark = { ...this.form.value, uuid: uuidv4() };
             await this.bookmarksStorage.add(bookmark);
+            if ((window as any)?.chrome?.runtime?.sendMessage) {
+                (window as any).chrome.runtime.sendMessage({ type: 'BOOKMARK_ADDED' });
+            }
             this.form.reset();
             this.tags = [];
             this.setFormDefaults();
