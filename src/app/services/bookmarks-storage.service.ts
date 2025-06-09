@@ -8,6 +8,7 @@ export interface Bookmark {
     time: string;
     url: string;
     tags: string[];
+    recurrence: string;
     selected?: boolean;
 }
 

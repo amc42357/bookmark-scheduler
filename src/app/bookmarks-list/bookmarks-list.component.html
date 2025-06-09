@@ -36,6 +36,8 @@
         <span>{{ bookmark.date }}</span>
         <mat-icon>schedule</mat-icon>
         <span>{{ bookmark.time }}</span>
+        <mat-icon>repeat</mat-icon>
+        <span>{{ bookmark.recurrence | titlecase }}</span>
       </div>
       <div class="bookmark-tags">
         <mat-chip-listbox aria-label="Bookmark tags">

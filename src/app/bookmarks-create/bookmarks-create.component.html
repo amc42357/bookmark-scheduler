@@ -34,6 +34,17 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="form-group">
+      <mat-label>Recurrence</mat-label>
+      <mat-select formControlName="recurrence" placeholder="Select recurrence">
+        <mat-option value="once">Once</mat-option>
+        <mat-option value="daily">Daily</mat-option>
+        <mat-option value="weekly">Weekly</mat-option>
+        <mat-option value="bi-weekly">Bi-weekly</mat-option>
+        <mat-option value="monthly">Monthly</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="form-group">
       <mat-label>Tags</mat-label>
       <mat-chip-grid #chipGrid aria-label="Bookmark tags">
         <mat-chip-row *ngFor="let tag of tags" [removable]="true" (removed)="removeTag(tag)">

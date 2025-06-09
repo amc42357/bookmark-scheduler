@@ -5,6 +5,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatSelectModule } from '@angular/material/select';
 import { CommonModule } from '@angular/common';
 import { BookmarksStorageService } from '../services/bookmarks-storage.service';
 import { v4 as uuidv4 } from 'uuid';
@@ -19,7 +20,8 @@ import { v4 as uuidv4 } from 'uuid';
         MatInputModule,
         MatButtonModule,
         MatIconModule,
-        MatChipsModule
+        MatChipsModule,
+        MatSelectModule
     ],
     templateUrl: './bookmarks-create.component.html',
     styleUrls: ['./bookmarks-create.component.scss']
@@ -38,6 +40,7 @@ export class BookmarksCreateComponent {
             date: ['', Validators.required],
             time: ['', Validators.required],
             url: ['', [Validators.required]],
+            recurrence: ['once', Validators.required],
             tags: [[]]
         });
         const now = new Date();
