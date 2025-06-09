@@ -1,13 +1,13 @@
 <!-- Responsive bookmarks list with icons, edit and remove buttons -->
 <div class="bookmarks-list-container">
   <div class="tag-filter-bar" *ngIf="showTagFilterBar">
-    <span>Filter by tag:</span>
+    <span>{{ 'FILTER_BY_TAG' | translate }}</span>
     <mat-chip-listbox>
       <mat-chip-option *ngFor="let tag of allTags" [selected]="selectedTag === tag" (click)="filterByTag(tag)" (keydown.enter)="filterByTag(tag)">
         {{ tag }}
       </mat-chip-option>
       <mat-chip-option *ngIf="selectedTag" color="primary" (click)="clearTagFilter()" (keydown.enter)="clearTagFilter()">
-        Clear
+        {{ 'CLEAR' | translate }}
       </mat-chip-option>
     </mat-chip-listbox>
   </div>
@@ -15,16 +15,16 @@
   <div class="batch-actions" *ngIf="hasBookmarks">
     <button mat-stroked-button color="warn" (click)="toggleRemoveMode()" [class.active]="removeMode">
       <mat-icon>{{ removeMode ? 'close' : 'delete' }}</mat-icon>
-      {{ removeMode ? 'Cancel Remove' : 'Batch Remove' }}
+      {{ removeMode ? ('CANCEL_REMOVE' | translate) : ('BATCH_REMOVE' | translate) }}
     </button>
     <ng-container *ngIf="removeMode">
       <mat-checkbox [(ngModel)]="selectAllChecked" (change)="toggleSelectAll()">Select All</mat-checkbox>
-      <button mat-raised-button color="warn" (click)="removeSelected()" [disabled]="isRemoveDisabled">Remove Selected</button>
+      <button mat-raised-button color="warn" (click)="removeSelected()" [disabled]="isRemoveDisabled">{{ 'REMOVE_SELECTED' | translate }}</button>
     </ng-container>
   </div>
 
   <div *ngIf="isEmpty" class="empty-message">
-    <mat-icon>info</mat-icon> No bookmarks found.
+    <mat-icon>info</mat-icon> {{ 'NO_BOOKMARKS' | translate }}
   </div>
 
   <div *ngFor="let bookmark of filteredBookmarks(); trackBy: trackByUuid" class="bookmark-card" [class.remove-mode]="removeMode">

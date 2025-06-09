@@ -7,6 +7,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
 
 // --- App Services & Utils ---
 import { ChromeTabsService } from '../services/chrome-tabs.service';
@@ -23,7 +24,8 @@ import { BookmarksStorageService } from '../services/bookmarks-storage.service';
         MatButtonModule,
         MatChipsModule,
         MatCheckboxModule,
-        FormsModule
+        FormsModule,
+        TranslateModule
     ],
     templateUrl: './bookmarks-list.component.html',
     styleUrls: ['./bookmarks-list.component.scss']

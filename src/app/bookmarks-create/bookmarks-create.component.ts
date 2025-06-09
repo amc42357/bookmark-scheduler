@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { v4 as uuidv4 } from 'uuid';
@@ -15,6 +15,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'bookmarks-create',
@@ -28,10 +30,14 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
         MatIconModule,
         MatChipsModule,
         MatSelectModule,
-        MatProgressSpinnerModule
+        MatProgressSpinnerModule,
+        MatTooltipModule,
+        TranslateModule
     ],
     templateUrl: './bookmarks-create.component.html',
-    styleUrls: ['./bookmarks-create.component.scss']
+    styleUrls: ['./bookmarks-create.component.scss'],
+    // Add schemas to allow aria-label on mat-chip-grid
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class BookmarksCreateComponent implements AfterViewInit {
     readonly form: FormGroup;
