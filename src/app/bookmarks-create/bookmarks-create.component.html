@@ -4,7 +4,7 @@
 
     <!-- Tab capture button, visually grouped with title/url -->
     <div class="tab-capture-row">
-      <button mat-stroked-button color="accent" type="button" (click)="captureTabInfo()" matTooltip="Auto-fill title and URL from current browser tab" matTooltipShowDelay="300">
+      <button mat-stroked-button color="accent" type="button" (click)="captureTabInfo(form)" matTooltip="Auto-fill title and URL from current browser tab" matTooltipShowDelay="300">
         <mat-icon>link</mat-icon>
         Use Current Tab
       </button>
@@ -31,17 +31,13 @@
     <mat-form-field appearance="outline" class="form-group">
       <mat-label>Recurrence</mat-label>
       <mat-select formControlName="recurrence" placeholder="Select recurrence" aria-label="Recurrence" matTooltip="How often should this bookmark remind you?" matTooltipShowDelay="300">
-        <mat-option value="once">Once</mat-option>
-        <mat-option value="daily">Daily</mat-option>
-        <mat-option value="weekly">Weekly</mat-option>
-        <mat-option value="bi-weekly">Bi-weekly</mat-option>
-        <mat-option value="monthly">Monthly</mat-option>
+        <mat-option *ngFor="let option of RECURRENCE_OPTIONS" [value]="option">{{ option | titlecase }}</mat-option>
       </mat-select>
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="form-group">
       <mat-label>Date</mat-label>
-      <input matInput type="date" formControlName="date" [min]="minDate" aria-required="true" aria-label="Date" [attr.aria-invalid]="form.get('date')?.invalid && form.get('date')?.touched" matTooltip="Select the date for the bookmark reminder" matTooltipShowDelay="300">
+      <input matInput type="date" formControlName="date" aria-required="true" aria-label="Date" [attr.aria-invalid]="form.get('date')?.invalid && form.get('date')?.touched" matTooltip="Select the date for the bookmark reminder" matTooltipShowDelay="300">
       <mat-error *ngIf="form.get('date')?.touched && form.get('date')?.invalid">
         Date is required
       </mat-error>
@@ -58,7 +54,7 @@
     <mat-form-field appearance="outline" class="form-group">
       <mat-label>Tags</mat-label>
       <mat-chip-grid #chipGrid aria-label="Bookmark tags">
-        <mat-chip-row *ngFor="let tag of tags" [removable]="true" (removed)="removeTag(tag)">
+        <mat-chip-row *ngFor="let tag of form.get('tags')?.value" [removable]="true" (removed)="removeTagUtil(form, tag)">
           {{ tag }}
           <mat-icon matChipRemove aria-label="Remove tag">cancel</mat-icon>
         </mat-chip-row>
@@ -67,7 +63,7 @@
           [matChipInputFor]="chipGrid"
           [matChipInputSeparatorKeyCodes]="[13,188]"
           [matChipInputAddOnBlur]="true"
-          (matChipInputTokenEnd)="addTag($event)"
+          (matChipInputTokenEnd)="addTagUtil(form, $event)"
           placeholder="Add tag..."
           aria-label="Add tag"
           matTooltip="Press Enter or comma to add a tag"
