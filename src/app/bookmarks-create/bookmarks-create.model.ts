@@ -1,5 +1,5 @@
 // Bookmark type for strong typing
-export type Recurrence = 'once' | 'daily' | 'weekly' | 'bi-weekly' | 'monthly';
+export type Recurrence = 'once' | 'daily' | 'weekly' | 'bi-weekly' | 'monthly' | 'yearly';
 
 export interface Bookmark {
     uuid: string;
@@ -16,6 +16,7 @@ export const RECURRENCE_OPTIONS: Recurrence[] = [
     'weekly',
     'bi-weekly',
     'monthly',
+    'yearly',
 ] as const;
 
 const ENTER_KEY_CODE = 13;
