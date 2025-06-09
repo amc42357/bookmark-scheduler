@@ -13,3 +13,11 @@ export function getCurrentTime(): string {
     const min = String(now.getMinutes()).padStart(2, '0');
     return `${hh}:${min}`;
 }
+
+/**
+ * Helper to get a Date object from a bookmark's date and time.
+ */
+export function getBookmarkDateTime(bookmark: { date: string; time: string }): Date {
+    // Handles both 'YYYY-MM-DDTHH:mm' and 'YYYY-MM-DDTHH:mm:ss' formats
+    return new Date(`${bookmark.date}T${bookmark.time}`);
+}

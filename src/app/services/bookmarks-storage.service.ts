@@ -1,95 +1,104 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
+import { getBookmarkDateTime } from '../utils/date-utils';
 
+/**
+ * Represents a scheduled bookmark with recurrence and optional selection state.
+ */
 export interface Bookmark {
-    uuid: string;
-    title: string;
-    date: string;
-    time: string;
-    url: string;
-    tags: string[];
-    recurrence: string;
-    selected?: boolean;
+    uuid: string;           // Unique identifier for the bookmark
+    title: string;          // Title of the bookmark
+    date: string;           // Scheduled date in YYYY-MM-DD format
+    time: string;           // Scheduled time in HH:mm or HH:mm:ss format
+    url: string;            // URL of the bookmark
+    tags: string[];         // Associated tags
+    recurrence: string;     // Recurrence rule or type
+    selected?: boolean;     // Optional: UI selection state
 }
 
 @Injectable({
     providedIn: 'root'
 })
 export class BookmarksStorageService {
-    private readonly STORAGE_KEY = 'bookmarks';
-    bookmarksChanged = new Subject<void>();
+    private static readonly STORAGE_KEY = 'bookmarks'; // Key for Chrome local storage
+    bookmarksChanged = new Subject<void>(); // Emits when bookmarks are updated
 
+    /**
+     * Retrieves all bookmarks from Chrome local storage.
+     * @returns Promise resolving to an array of bookmarks (empty if none exist)
+     */
     async getAll(): Promise<Bookmark[]> {
         return new Promise<Bookmark[]>((resolve) => {
-            chrome.storage.local.get([this.STORAGE_KEY], (result) => {
-                resolve(result[this.STORAGE_KEY] ?? []);
-            });
-        });
-    }
-
-    private getInsertIndex(bookmarks: Bookmark[], bookmark: Bookmark): number {
-        const newDateTime = new Date(`${bookmark.date}T${bookmark.time}`);
-        return bookmarks.findIndex(b => {
-            const bDateTime = new Date(`${b.date}T${b.time}`);
-            return newDateTime.getTime() < bDateTime.getTime();
-        });
-    }
-
-    async add(bookmark: Bookmark): Promise<void> {
-        await this.removePastBookmarks();
-        const bookmarks = await this.getAll();
-        const insertIndex = this.getInsertIndex(bookmarks, bookmark);
-        if (insertIndex === -1) {
-            bookmarks.push(bookmark);
-        } else {
-            bookmarks.splice(insertIndex, 0, bookmark);
-        }
-        await new Promise<void>(resolve => {
-            chrome.storage.local.set({ [this.STORAGE_KEY]: bookmarks }, () => {
-                this.bookmarksChanged.next();
-                resolve();
-            });
-        });
-    }
-
-    async delete(bookmark: Bookmark): Promise<void> {
-        const bookmarks = await this.getAll();
-        const index = bookmarks.findIndex(b => b.uuid === bookmark.uuid);
-        if (index === -1)
-            return;
-        bookmarks.splice(index, 1);
-        await new Promise<void>(resolve => {
-            chrome.storage.local.set({ [this.STORAGE_KEY]: bookmarks }, () => {
-                this.bookmarksChanged.next();
-                resolve();
-            });
-        });
-    }
-
-    async clear(): Promise<void> {
-        await new Promise<void>(resolve => {
-            chrome.storage.local.remove(this.STORAGE_KEY, () => {
-                this.bookmarksChanged.next();
-                resolve();
+            chrome.storage.local.get([BookmarksStorageService.STORAGE_KEY], (result) => {
+                resolve(result[BookmarksStorageService.STORAGE_KEY] ?? []);
             });
         });
     }
 
     /**
-     * Removes bookmarks whose date and time are before now.
+     * Finds the index to insert a new bookmark so the list remains sorted by date and time.
+     * @param bookmarks Current list of bookmarks
+     * @param bookmark The new bookmark to insert
+     * @returns Index at which to insert, or -1 to append at the end
+     */
+    private getInsertIndex(bookmarks: Bookmark[], bookmark: Bookmark): number {
+        const newDateTime = getBookmarkDateTime(bookmark);
+        return bookmarks.findIndex(b => newDateTime < getBookmarkDateTime(b));
+    }
+
+    /**
+     * Adds a new bookmark, ensuring the list is sorted and past bookmarks are removed.
+     * Notifies subscribers after saving.
+     * @param bookmark The bookmark to add
+     */
+    async add(bookmark: Bookmark): Promise<void> {
+        await this.removePastBookmarks();
+        const bookmarks = await this.getAll();
+        const insertIndex = this.getInsertIndex(bookmarks, bookmark);
+        if (insertIndex === -1) {
+            bookmarks.push(bookmark); // Append if no later bookmark exists
+        } else {
+            bookmarks.splice(insertIndex, 0, bookmark); // Insert at correct position
+        }
+        await this.saveBookmarks(bookmarks);
+    }
+
+    /**
+     * Deletes a bookmark by its UUID and updates storage.
+     * Notifies subscribers after saving.
+     * @param bookmark The bookmark to delete
+     */
+    async delete(bookmark: Bookmark): Promise<void> {
+        const bookmarks = (await this.getAll()).filter(b => b.uuid !== bookmark.uuid);
+        await this.saveBookmarks(bookmarks);
+    }
+
+    /**
+     * Removes all bookmarks from storage and notifies subscribers.
+     */
+    async clear(): Promise<void> {
+        chrome.storage.local.remove(BookmarksStorageService.STORAGE_KEY, () => {
+            this.bookmarksChanged.next();
+        });
+    }
+
+    /**
+     * Removes bookmarks scheduled before the current time and updates storage.
+     * Notifies subscribers after saving.
      */
     private async removePastBookmarks(): Promise<void> {
         const now = new Date();
-        const bookmarks: Bookmark[] = await this.getAll();
-        const filtered = bookmarks.filter(b => {
-            const bDateTime = new Date(`${b.date}T${b.time}`);
-            return bDateTime.getTime() >= now.getTime();
-        });
-        await new Promise<void>(resolve => {
-            chrome.storage.local.set({ [this.STORAGE_KEY]: filtered }, () => {
-                this.bookmarksChanged.next();
-                resolve();
-            });
+        const bookmarks = await this.getAll();
+        await this.saveBookmarks(bookmarks.filter(b => getBookmarkDateTime(b) >= now));
+    }
+
+    /**
+     * Saves the provided bookmarks array to storage and notifies subscribers.
+     * @param bookmarks The array of bookmarks to save
+     */
+    private async saveBookmarks(bookmarks: Bookmark[]): Promise<void> {
+        chrome.storage.local.set({ [BookmarksStorageService.STORAGE_KEY]: bookmarks }, () => {
+            this.bookmarksChanged.next();
         });
     }
 }

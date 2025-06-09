@@ -1,5 +1,5 @@
 // Utility functions for bookmarks-list.component
-import { Bookmark } from '../services/bookmarks-storage.service';
+import type { Bookmark } from '../services/bookmarks-storage.service';
 
 /**
  * Returns a sorted array of unique tags from a list of bookmarks.
