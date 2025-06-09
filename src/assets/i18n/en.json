@@ -7,7 +7,7 @@
   "URL": "URL",
   "URL_PLACEHOLDER": "https://example.com",
   "URL_REQUIRED": "URL is required",
-  "URL_PATTERN": "Enter a valid URL. Example: https://example.com or http://my-site.org/path",
+  "URL_PATTERN": "Enter a valid URL.",
   "RECURRENCE": "Recurrence",
   "RECURRENCE_OPTION_DAILY": "Daily",
   "RECURRENCE_OPTION_WEEKLY": "Weekly",
@@ -24,10 +24,12 @@
   "SAVE": "Save",
   "SAVING": "Saving...",
   "BATCH_REMOVE": "Batch Remove",
-  "CANCEL_REMOVE": "Cancel Remove",
-  "REMOVE_SELECTED": "Remove Selected",
+  "CANCEL_REMOVE": "Cancel",
+  "REMOVE_SELECTED": "Remove",
   "NO_BOOKMARKS": "No bookmarks found.",
   "FILTER_BY_TAG": "Filter by tag:",
   "CLEAR": "Clear",
-  "IS_INVALID_OR_MISSING": "is invalid or missing"
+  "IS_INVALID_OR_MISSING": "is invalid or missing",
+  "SELECT_ALL": "All",
+  "BOOKMARKS": "Bookmarks"
 }

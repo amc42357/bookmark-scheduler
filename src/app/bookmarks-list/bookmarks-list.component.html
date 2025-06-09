@@ -18,7 +18,7 @@
       {{ removeMode ? ('CANCEL_REMOVE' | translate) : ('BATCH_REMOVE' | translate) }}
     </button>
     <ng-container *ngIf="removeMode">
-      <mat-checkbox [(ngModel)]="selectAllChecked" (change)="toggleSelectAll()">Select All</mat-checkbox>
+      <mat-checkbox [(ngModel)]="selectAllChecked" (change)="toggleSelectAll()">{{ 'SELECT_ALL' | translate }}</mat-checkbox>
       <button mat-raised-button color="warn" (click)="removeSelected()" [disabled]="isRemoveDisabled">{{ 'REMOVE_SELECTED' | translate }}</button>
     </ng-container>
   </div>
@@ -40,7 +40,7 @@
         <mat-icon>schedule</mat-icon>
         <span>{{ bookmark.time }}</span>
         <mat-icon>repeat</mat-icon>
-        <span>{{ bookmark.recurrence | titlecase }}</span>
+        <span>{{ ('RECURRENCE_OPTION_' + (bookmark.recurrence || '').toUpperCase().replace('-', '')) | translate }}</span>
       </div>
       <div class="bookmark-tags">
         <mat-chip-listbox aria-label="Bookmark tags">

@@ -112,6 +112,18 @@ h2 {
   button {
     transition: background 0.2s, color 0.2s;
   }
+
+  mat-checkbox {
+    .mat-checkbox-label {
+      font-size: 0.95em;
+      max-width: 90px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
 }
 
 .bookmark-tags {

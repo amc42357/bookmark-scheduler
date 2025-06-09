@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, CUSTOM_ELEMENTS_SCHEMA, Inject, LOCALE_ID } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { v4 as uuidv4 } from 'uuid';
@@ -44,6 +44,7 @@ export class BookmarksCreateComponent implements AfterViewInit {
     readonly RECURRENCE_OPTIONS = RECURRENCE_OPTIONS;
     readonly separatorKeys = SEPARATOR_KEYS;
     isSubmitting = false;
+    currentLocale: string;
 
     @ViewChild('titleInput') titleInput!: ElementRef<HTMLInputElement>;
 
@@ -53,8 +54,10 @@ export class BookmarksCreateComponent implements AfterViewInit {
 
     constructor(
         private readonly fb: FormBuilder,
-        private readonly bookmarksStorage: BookmarksStorageService
+        private readonly bookmarksStorage: BookmarksStorageService,
+        @Inject(LOCALE_ID) localeId: string
     ) {
+        this.currentLocale = localeId.startsWith('es') ? 'es' : 'en';
         const initial = this.getInitialFormState();
         this.form = this.fb.group({
             title: [initial.title, Validators.required],
@@ -105,6 +108,35 @@ export class BookmarksCreateComponent implements AfterViewInit {
         captureTabInfo(this.form);
         this.form.get('title')?.markAsTouched();
         this.form.get('url')?.markAsTouched();
+    }
+
+    onDateInput(event: Event) {
+        const input = event.target as HTMLInputElement;
+        const value = input?.value;
+        if (this.currentLocale === 'es' && value?.includes('/')) {
+            const [dd, mm, yyyy] = value.split('/');
+            if (dd && mm && yyyy) {
+                this.form.get('date')?.setValue(`${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`);
+            }
+        } else if (this.currentLocale === 'en' && value?.includes('/')) {
+            const [mm, dd, yyyy] = value.split('/');
+            if (mm && dd && yyyy) {
+                this.form.get('date')?.setValue(`${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`);
+            }
+        }
+    }
+
+    onDateBlur(event: Event) {
+        const input = event.target as HTMLInputElement;
+        const value = input?.value;
+        const match = /^\d{4}-\d{2}-\d{2}$/.exec(value || '');
+        if (this.currentLocale === 'es' && match) {
+            const [yyyy, mm, dd] = value.split('-');
+            input.value = `${dd}/${mm}/${yyyy}`;
+        } else if (this.currentLocale === 'en' && match) {
+            const [yyyy, mm, dd] = value.split('-');
+            input.value = `${mm}/${dd}/${yyyy}`;
+        }
     }
 
     get title() { return this.form.get('title'); }
