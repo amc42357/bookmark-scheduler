@@ -1,4 +1,24 @@
 // Converted from SASS to SCSS syntax
+// Grouped and simplified SCSS for maintainability and readability
+
+// Use SASS @mixin and @extend to reduce repetition and improve maintainability
+
+// Flex utilities
+@mixin flex-center($gap: 0.5rem) {
+  display: flex;
+  align-items: center;
+  gap: $gap;
+}
+
+// Card style
+%card {
+  background: #f7f7f7;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
 .bookmarks-list-container {
   max-width: 600px;
   margin: 2rem auto;
@@ -6,12 +26,14 @@
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+
+  @media (max-width: 600px) {
+    padding: 0.5rem;
+  }
 }
 
 h2, .empty-message, .batch-actions, .tag-filter-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  @include flex-center();
 }
 
 h2 {
@@ -27,18 +49,20 @@ h2 {
 }
 
 .bookmark-card {
+  @extend %card;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  background: #f7f7f7;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
   flex-wrap: wrap;
+
   &.remove-mode {
     border: 2px solid #e53e3e;
     background: #fff5f5;
+  }
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 
@@ -48,9 +72,7 @@ h2 {
 }
 
 .bookmark-title, .bookmark-url, .bookmark-date-time {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  @include flex-center();
   margin-bottom: 0.5rem;
   word-break: break-all;
 }
@@ -69,15 +91,24 @@ h2 {
   flex-direction: column;
   gap: 0.5rem;
   align-items: flex-end;
+  margin-top: 0;
+
+  @media (max-width: 600px) {
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+  }
 }
 
 .batch-actions {
   gap: 1rem;
   margin-bottom: 1rem;
+
   .active {
     background: #e53e3e;
     color: #fff;
   }
+
   button {
     transition: background 0.2s, color 0.2s;
   }
@@ -97,6 +128,7 @@ mat-chip {
   margin-right: 0.25rem;
   margin-bottom: 0.25rem;
   cursor: pointer;
+
   &[selected], &[color="primary"] {
     background: #3182ce;
     color: #fff;
@@ -109,19 +141,4 @@ mat-chip {
 
 mat-checkbox {
   margin-right: 0.5rem;
-}
-
-@media (max-width: 600px) {
-  .bookmarks-list-container {
-    padding: 0.5rem;
-  }
-  .bookmark-card {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .bookmark-actions {
-    flex-direction: row;
-    justify-content: flex-end;
-    margin-top: 0.5rem;
-  }
 }

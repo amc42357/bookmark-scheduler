@@ -1,120 +1,138 @@
-// Bookmarks List Component (was ListEventsComponent)
+// --- Angular & 3rd Party Imports ---
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BookmarksStorageService, Bookmark } from '../services/bookmarks-storage.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
-import { Subscription } from 'rxjs';
-import { ChromeTabsService } from '../services/chrome-tabs.service';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
+
+// --- App Services & Utils ---
+import { ChromeTabsService } from '../services/chrome-tabs.service';
+import { extractAllTags, removeBookmarks } from '../utils/bookmarks-list.utils';
+import { Bookmark } from '../bookmarks-create/bookmarks-create.model';
+import { BookmarksStorageService } from '../services/bookmarks-storage.service';
 
 @Component({
     selector: 'bookmarks-list',
     standalone: true,
-    imports: [CommonModule, MatIconModule, MatButtonModule, MatChipsModule, MatCheckboxModule, FormsModule],
+    imports: [
+        CommonModule,
+        MatIconModule,
+        MatButtonModule,
+        MatChipsModule,
+        MatCheckboxModule,
+        FormsModule
+    ],
     templateUrl: './bookmarks-list.component.html',
     styleUrls: ['./bookmarks-list.component.scss']
 })
 export class BookmarksListComponent implements OnInit, OnDestroy {
-    bookmarks: Bookmark[] = [];
+    // --- State ---
+    bookmarks: (Bookmark & { selected?: boolean })[] = [];
     allTags: string[] = [];
     selectedTag: string | null = null;
-    selectedBookmarks: Bookmark[] = [];
+    selectedBookmarks: (Bookmark & { selected?: boolean })[] = [];
     selectAllChecked = false;
     removeMode = false;
     editMode = false;
     private subscription?: Subscription;
-    constructor(private readonly bookmarksStorage: BookmarksStorageService, private readonly chromeTabs: ChromeTabsService) { }
+
+    // --- Constructor ---
+    constructor(
+        private readonly bookmarksStorage: BookmarksStorageService,
+        private readonly chromeTabs: ChromeTabsService
+    ) { }
+
+    // --- Lifecycle ---
     ngOnInit() {
         this.loadBookmarks();
-        this.subscription = this.bookmarksStorage.bookmarksChanged.subscribe(() => {
-            this.loadBookmarks();
-        });
+        this.subscription = this.bookmarksStorage.bookmarksChanged.subscribe(() => this.loadBookmarks());
     }
     ngOnDestroy() {
         this.subscription?.unsubscribe();
     }
+
+    // --- Data Loading & State ---
     async loadBookmarks() {
         const bookmarks = await this.bookmarksStorage.getAll();
-        this.bookmarks = bookmarks.map(b => ({ ...b, selected: false }));
-        this.updateAllTags();
-        this.updateSelectedBookmarks();
-        this.updateSelectAllChecked();
+        // Ensure recurrence is typed as Recurrence
+        this.bookmarks = bookmarks.map(b => ({ ...b, recurrence: b.recurrence as any as Recurrence, selected: false }));
+        this.allTags = extractAllTags(this.bookmarks);
+        this.updateSelectionState();
     }
-    updateAllTags() {
-        const tagSet = new Set<string>();
-        this.bookmarks.forEach(b => (b.tags ?? []).forEach(t => tagSet.add(t)));
-        this.allTags = Array.from(tagSet).sort((a, b) => a.localeCompare(b));
-    }
-    async remove(bookmark: Bookmark) {
+
+    // --- Bookmark Actions ---
+    async remove(bookmark: Bookmark & { selected?: boolean }) {
         if (!this.removeMode) return;
         await this.bookmarksStorage.delete(bookmark);
         await this.loadBookmarks();
     }
     async removeSelected() {
         if (!this.removeMode) return;
-        for (const b of this.selectedBookmarks) {
-            await this.bookmarksStorage.delete(b);
-        }
+        await removeBookmarks(this.bookmarksStorage, this.selectedBookmarks);
         await this.loadBookmarks();
     }
-    filterByTag(tag: string) {
-        if (this.selectedTag === tag) {
-            this.selectedTag = null; // Deselect if already selected
-        } else {
-            this.selectedTag = tag;
-        }
-    }
-    clearTagFilter() {
-        this.selectedTag = null;
-    }
+
+    // --- Tag Filtering ---
+    filterByTag = (tag: string) => this.selectedTag = this.selectedTag === tag ? null : tag;
+    clearTagFilter = () => { this.selectedTag = null; };
     filteredBookmarks() {
-        if (!this.selectedTag) return this.bookmarks;
-        return this.bookmarks.filter(b => (b.tags ?? []).includes(this.selectedTag!));
+        return !this.selectedTag ? this.bookmarks : this.bookmarks.filter(b => (b.tags ?? []).includes(this.selectedTag!));
     }
+
+    // --- UI Actions ---
     openLink(bookmark: Bookmark) {
-        const handled = this.chromeTabs.openBookmark(bookmark);
-        if (!handled && bookmark.url) {
-            window.location.href = bookmark.url;
-        }
+        this.chromeTabs.openBookmark(bookmark);
     }
     toggleSelectAll() {
         this.bookmarks.forEach(b => b.selected = this.selectAllChecked);
-        this.updateSelectedBookmarks();
-        this.updateSelectAllChecked();
+        this.updateSelectionState();
+    }
+    private resetSelectionState() {
+        this.bookmarks.forEach(b => b.selected = false);
+        this.selectAllChecked = false;
+        this.selectedBookmarks = [];
     }
     toggleRemoveMode() {
         this.removeMode = !this.removeMode;
         if (this.removeMode) {
             this.editMode = false;
+            return;
         }
-        if (!this.removeMode) {
-            this.bookmarks.forEach(b => b.selected = false);
-            this.selectAllChecked = false;
-            this.selectedBookmarks = [];
-        }
+        this.resetSelectionState();
     }
     toggleEditMode() {
         this.editMode = !this.editMode;
         if (this.editMode) {
             this.removeMode = false;
+            return;
         }
-        if (!this.editMode) {
-            this.bookmarks.forEach(b => b.selected = false);
-            this.selectAllChecked = false;
-            this.selectedBookmarks = [];
-        }
+        this.resetSelectionState();
     }
-    updateSelectedBookmarks() {
+    updateSelectionState() {
         this.selectedBookmarks = this.bookmarks.filter(b => b.selected);
-    }
-    updateSelectAllChecked() {
         this.selectAllChecked = this.bookmarks.length > 0 && this.bookmarks.every(b => b.selected);
     }
-    onBookmarkSelectChange(bookmark: Bookmark) {
-        this.updateSelectedBookmarks();
-        this.updateSelectAllChecked();
+    onBookmarkSelectChange(bookmark: Bookmark & { selected?: boolean }) {
+        this.updateSelectionState();
+    }
+    trackByUuid(index: number, bookmark: Bookmark) {
+        return bookmark.uuid;
+    }
+
+    // --- UI Logic for Template Simplification ---
+    get showTagFilterBar() {
+        return this.allTags.length > 0 && this.bookmarks.length > 0;
+    }
+    get hasBookmarks() {
+        return this.bookmarks.length > 0;
+    }
+    get isEmpty() {
+        return this.bookmarks.length === 0;
+    }
+    get isRemoveDisabled() {
+        return this.selectedBookmarks.length === 0;
     }
 }

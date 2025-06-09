@@ -15,15 +15,26 @@ $chip-bg: #e2e8f0;
 $chip-color: #2d3748;
 
 /* Modern, clean, and responsive styles for the create bookmark form */
+// SASS mixins and placeholder selectors for reuse and reduction
+@mixin flex($justify: flex-start, $align: stretch, $gap: 0) {
+  display: flex;
+  justify-content: $justify;
+  align-items: $align;
+  gap: $gap;
+}
+
+%error-text {
+  color: $error-color;
+  display: block;
+}
+
 .form-container {
   max-width: 400px;
   padding: $form-padding;
   background: $form-bg;
   border-radius: $form-radius;
   box-shadow: $form-shadow;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  @include flex(column, stretch, 1.5rem);
 
   h2 {
     text-align: center;
@@ -34,9 +45,7 @@ $chip-color: #2d3748;
 }
 
 .form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  @include flex(column, stretch, 0.5rem);
 }
 
 label {
@@ -63,15 +72,14 @@ input[type="time"] {
 }
 
 .error {
-  color: $error-color;
+  @extend %error-text;
   font-size: 0.9rem;
 }
 
 .feedback-error {
-  color: $error-color;
+  @extend %error-text;
   font-size: 0.95em;
   margin-bottom: 0.25rem;
-  display: block;
 }
 
 .form-feedback {
@@ -79,9 +87,7 @@ input[type="time"] {
 }
 
 .form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
+  @include flex(flex-end, center, 1rem);
 }
 
 button.secondary {
@@ -132,7 +138,6 @@ mat-hint {
   font-size: 0.95em;
 }
 
-// Accessibility helper class
 .visually-hidden {
   position: absolute;
   left: -10000px;
@@ -143,7 +148,6 @@ mat-hint {
 }
 
 .tab-capture-row {
-  display: flex;
-  justify-content: flex-end;
+  @include flex(flex-end, center);
   margin-bottom: 0.5rem;
 }

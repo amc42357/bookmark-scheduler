@@ -1,6 +1,6 @@
 <!-- Responsive bookmarks list with icons, edit and remove buttons -->
 <div class="bookmarks-list-container">
-  <div class="tag-filter-bar" *ngIf="allTags.length > 0 && bookmarks.length > 0">
+  <div class="tag-filter-bar" *ngIf="showTagFilterBar">
     <span>Filter by tag:</span>
     <mat-chip-listbox>
       <mat-chip-option *ngFor="let tag of allTags" [selected]="selectedTag === tag" (click)="filterByTag(tag)" (keydown.enter)="filterByTag(tag)">
@@ -11,23 +11,26 @@
       </mat-chip-option>
     </mat-chip-listbox>
   </div>
-  <div class="batch-actions" *ngIf="bookmarks.length > 0">
+
+  <div class="batch-actions" *ngIf="hasBookmarks">
     <button mat-stroked-button color="warn" (click)="toggleRemoveMode()" [class.active]="removeMode">
       <mat-icon>{{ removeMode ? 'close' : 'delete' }}</mat-icon>
       {{ removeMode ? 'Cancel Remove' : 'Batch Remove' }}
     </button>
     <ng-container *ngIf="removeMode">
       <mat-checkbox [(ngModel)]="selectAllChecked" (change)="toggleSelectAll()">Select All</mat-checkbox>
-      <button mat-raised-button color="warn" (click)="removeSelected()" [disabled]="selectedBookmarks.length === 0">Remove Selected</button>
+      <button mat-raised-button color="warn" (click)="removeSelected()" [disabled]="isRemoveDisabled">Remove Selected</button>
     </ng-container>
   </div>
-  <div *ngIf="bookmarks.length === 0" class="empty-message">
+
+  <div *ngIf="isEmpty" class="empty-message">
     <mat-icon>info</mat-icon> No bookmarks found.
   </div>
-  <div *ngFor="let bookmark of filteredBookmarks(); let i = index" class="bookmark-card" [class.remove-mode]="removeMode">
+
+  <div *ngFor="let bookmark of filteredBookmarks(); trackBy: trackByUuid" class="bookmark-card" [class.remove-mode]="removeMode">
     <mat-checkbox *ngIf="removeMode" [(ngModel)]="bookmark.selected" (change)="onBookmarkSelectChange(bookmark)"></mat-checkbox>
     <div class="bookmark-info">
-      <button class="bookmark-title" [ngStyle]="{cursor: 'pointer'}" (click)="openLink(bookmark)">
+      <button class="bookmark-title" type="button" (click)="openLink(bookmark)">
         <mat-icon>label</mat-icon>
         <span>{{ bookmark.title }}</span>
       </button>
