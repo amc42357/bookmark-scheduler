@@ -82,12 +82,6 @@ export class BookmarksCreateComponent implements AfterViewInit {
     }
 
     async onSubmit(): Promise<void> {
-        console.log('Form value:', this.form.value);
-        console.log('Form status:', this.form.status);
-        Object.keys(this.form.controls).forEach(key => {
-            const control = this.form.get(key);
-            console.log(`Control '${key}': value=`, control?.value, 'status=', control?.status, 'errors=', control?.errors);
-        });
         if (!this.form.valid) {
             this.form.markAllAsTouched();
             return;
