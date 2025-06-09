@@ -1,32 +1,27 @@
 <div class="form-container">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off" aria-labelledby="bookmarkFormTitle">
+    <h2 id="bookmarkFormTitle" class="visually-hidden">Create Bookmark</h2>
+
+    <!-- Tab capture button, visually grouped with title/url -->
+    <div class="tab-capture-row">
+      <button mat-stroked-button color="accent" type="button" (click)="captureTabInfo()" matTooltip="Auto-fill title and URL from current browser tab" matTooltipShowDelay="300">
+        <mat-icon>link</mat-icon>
+        Use Current Tab
+      </button>
+    </div>
+
     <mat-form-field appearance="outline" class="form-group">
       <mat-label>Title</mat-label>
-      <input matInput formControlName="title" placeholder="Bookmark title">
+      <input matInput formControlName="title" placeholder="Bookmark title" #titleInput aria-required="true" aria-label="Bookmark title" [attr.aria-invalid]="form.get('title')?.invalid && form.get('title')?.touched" matTooltip="Enter a descriptive title for your bookmark" matTooltipShowDelay="300">
       <mat-error *ngIf="form.get('title')?.touched && form.get('title')?.invalid">
         Title is required
       </mat-error>
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="form-group">
-      <mat-label>Date</mat-label>
-      <input matInput type="date" formControlName="date" [min]="minDate">
-      <mat-error *ngIf="form.get('date')?.touched && form.get('date')?.invalid">
-        Date is required
-      </mat-error>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="form-group">
-      <mat-label>Time</mat-label>
-      <input matInput type="time" formControlName="time">
-      <mat-error *ngIf="form.get('time')?.touched && form.get('time')?.invalid">
-        Time is required
-      </mat-error>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="form-group">
       <mat-label>URL</mat-label>
-      <input matInput type="url" formControlName="url" placeholder="https://example.com">
+      <input matInput type="url" formControlName="url" placeholder="https://example.com" autocomplete="off" aria-required="true" aria-label="Bookmark URL" [attr.aria-invalid]="form.get('url')?.invalid && form.get('url')?.touched" matTooltip="Paste or type the full URL" matTooltipShowDelay="300">
+      <mat-hint>Paste or type the full URL</mat-hint>
       <mat-error *ngIf="form.get('url')?.touched && form.get('url')?.invalid">
         <ng-container *ngIf="form.get('url')?.errors?.['required']">URL is required</ng-container>
         <ng-container *ngIf="form.get('url')?.errors?.['pattern']">Enter a valid URL</ng-container>
@@ -35,7 +30,7 @@
 
     <mat-form-field appearance="outline" class="form-group">
       <mat-label>Recurrence</mat-label>
-      <mat-select formControlName="recurrence" placeholder="Select recurrence">
+      <mat-select formControlName="recurrence" placeholder="Select recurrence" aria-label="Recurrence" matTooltip="How often should this bookmark remind you?" matTooltipShowDelay="300">
         <mat-option value="once">Once</mat-option>
         <mat-option value="daily">Daily</mat-option>
         <mat-option value="weekly">Weekly</mat-option>
@@ -45,11 +40,27 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="form-group">
+      <mat-label>Date</mat-label>
+      <input matInput type="date" formControlName="date" [min]="minDate" aria-required="true" aria-label="Date" [attr.aria-invalid]="form.get('date')?.invalid && form.get('date')?.touched" matTooltip="Select the date for the bookmark reminder" matTooltipShowDelay="300">
+      <mat-error *ngIf="form.get('date')?.touched && form.get('date')?.invalid">
+        Date is required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="form-group">
+      <mat-label>Time</mat-label>
+      <input matInput type="time" formControlName="time" aria-required="true" aria-label="Time" [attr.aria-invalid]="form.get('time')?.invalid && form.get('time')?.touched" matTooltip="Select the time for the bookmark reminder" matTooltipShowDelay="300">
+      <mat-error *ngIf="form.get('time')?.touched && form.get('time')?.invalid">
+        Time is required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="form-group">
       <mat-label>Tags</mat-label>
       <mat-chip-grid #chipGrid aria-label="Bookmark tags">
         <mat-chip-row *ngFor="let tag of tags" [removable]="true" (removed)="removeTag(tag)">
           {{ tag }}
-          <mat-icon matChipRemove>cancel</mat-icon>
+          <mat-icon matChipRemove aria-label="Remove tag">cancel</mat-icon>
         </mat-chip-row>
         <input
           matChipInput
@@ -58,19 +69,31 @@
           [matChipInputAddOnBlur]="true"
           (matChipInputTokenEnd)="addTag($event)"
           placeholder="Add tag..."
+          aria-label="Add tag"
+          matTooltip="Press Enter or comma to add a tag"
+          matTooltipShowDelay="300"
         />
       </mat-chip-grid>
     </mat-form-field>
 
     <div class="form-actions">
-      <button mat-stroked-button color="accent" type="button" (click)="captureTabInfo()" matTooltip="Fill in the title and URL fields with the current browser tab's information" matTooltipShowDelay="300">
-        <mat-icon>link</mat-icon>
-        Tab
-      </button>
-      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid" matTooltip="Save this bookmark with the provided details" matTooltipShowDelay="300">
-        <mat-icon>add_circle</mat-icon>
-        Save
+      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || isSubmitting" matTooltip="Save this bookmark with the provided details" matTooltipShowDelay="300" class="save-btn">
+        <mat-icon *ngIf="!isSubmitting">add_circle</mat-icon>
+        <mat-spinner *ngIf="isSubmitting" diameter="24" class="spinner"></mat-spinner>
+        <span *ngIf="!isSubmitting">Save</span>
+        <span *ngIf="isSubmitting" class="visually-hidden">Saving...</span>
       </button>
     </div>
   </form>
 </div>
+
+<!-- Accessibility helper class -->
+<style>
+.visually-hidden { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+
+.tab-capture-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
+}
+</style>
