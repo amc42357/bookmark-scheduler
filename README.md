@@ -9,12 +9,25 @@ BookmarkScheduler is an Angular-based browser extension for managing and schedul
 - `src/` – Application source code
   - `app/` – Angular components and services
     - `bookmarks-create/` – Components for creating new bookmarks
+      - `bookmarks-create.component.ts` – Logic for bookmark creation
+      - `bookmarks-create.component.html` – Template for bookmark creation
+      - `bookmarks-create.component.scss` – Styles for bookmark creation
+      - `bookmarks-create.model.ts` – Model for bookmark creation
     - `bookmarks-list/` – Components for listing bookmarks
-    - `services/` – Services for storage, scheduling, and Chrome tabs API
-    - `utils/` – Utility functions for bookmarks, dates, tags, and Chrome integration
+      - `bookmarks-list.component.ts` – Logic for bookmark listing
+      - `bookmarks-list.component.html` – Template for bookmark listing
+      - `bookmarks-list.component.scss` – Styles for bookmark listing
+    - `services/` – Services for storage, scheduling, and Chrome Tabs API
+      - `bookmarks-storage.service.ts` – Bookmark storage logic
+      - `chrome-tabs.service.ts` – Chrome Tabs API integration
+    - `utils/` – Utility functions
+      - `bookmarks-create.utils.ts`, `bookmarks-list.utils.ts`, `chrome-utils.ts`, `date-utils.ts`, `tag-utils.ts`
+    - `app.component.ts`, `app.component.html`, `app.component.scss`, `app.config.ts` – Main app component and config
   - `browser/` – Background scripts for browser extension functionality
+    - `background.ts` – Background logic for scheduling/bookmarking
   - `manifest.json` – Browser extension manifest
   - `styles.sass` – Global styles
+  - `assets/i18n/` – Localization files (`en.json`, `es.json`)
 
 ## Available Scripts
 

@@ -6,7 +6,9 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "postbuild": "tsc src/browser/background.ts --outDir dist/browser --module none --target ES2020 --moduleResolution node --esModuleInterop"
+    "postbuild": "tsc src/browser/background.ts --outDir dist/browser --module none --target ES2020 --moduleResolution node --esModuleInterop",
+    "analyze": "ng build --source-map && npx source-map-explorer 'dist/**/*.js'",
+    "release": "ng build --configuration production && npm run postbuild"
   },
   "private": true,
   "dependencies": {
@@ -33,6 +35,8 @@
     "@angular/compiler-cli": "^19.2.0",
     "@types/chrome": "^0.0.326",
     "@types/uuid": "^10.0.0",
-    "typescript": "~5.7.2"
+    "source-map-explorer": "^2.5.3",
+    "typescript": "~5.7.2",
+    "webpack-bundle-analyzer": "^4.10.1"
   }
 }
