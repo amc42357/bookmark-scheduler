@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import type { Bookmark } from './bookmarks-storage.service';
+import type { Bookmark } from '../bookmarks-create/bookmarks-create.model';
 import { normalizeUrl } from '../utils/chrome-utils';
 
 @Injectable({ providedIn: 'root' })

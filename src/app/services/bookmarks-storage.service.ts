@@ -1,20 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { getBookmarkDateTime } from '../utils/date-utils';
-
-/**
- * Represents a scheduled bookmark with recurrence and optional selection state.
- */
-export interface Bookmark {
-    uuid: string;           // Unique identifier for the bookmark
-    title: string;          // Title of the bookmark
-    date: string;           // Scheduled date in YYYY-MM-DD format
-    time: string;           // Scheduled time in HH:mm or HH:mm:ss format
-    url: string;            // URL of the bookmark
-    tags: string[];         // Associated tags
-    recurrence: string;     // Recurrence rule or type
-    selected?: boolean;     // Optional: UI selection state
-}
+import type { Bookmark } from '../bookmarks-create/bookmarks-create.model';
 
 @Injectable({
     providedIn: 'root'

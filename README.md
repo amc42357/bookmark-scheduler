@@ -1,6 +1,6 @@
 # BookmarkScheduler
 
-This project is an Angular-based browser extension for managing and scheduling bookmarks. It was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.9.
+BookmarkScheduler is an Angular-based browser extension for managing and scheduling bookmarks. It was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.9.
 
 ## Project Structure
 
@@ -11,6 +11,8 @@ This project is an Angular-based browser extension for managing and scheduling b
     - `bookmarks-create/` – Components for creating new bookmarks
     - `bookmarks-list/` – Components for listing bookmarks
     - `services/` – Services for storage, scheduling, and Chrome tabs API
+    - `utils/` – Utility functions for bookmarks, dates, tags, and Chrome integration
+  - `browser/` – Background scripts for browser extension functionality
   - `manifest.json` – Browser extension manifest
   - `styles.sass` – Global styles
 
@@ -22,7 +24,7 @@ In the project directory, you can run:
 - `npm run build` or `ng build` – Builds the app for production
 - `npm run watch` – Builds the app in watch mode for development
 
-## Development server
+## Development Server
 
 To start a local development server, run:
 
@@ -30,43 +32,54 @@ To start a local development server, run:
 npm start
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
-## Code scaffolding
+## Building and Packaging the Extension
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+To build the project for use as a browser extension:
 
 ```bash
 npm run build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+The build artifacts will be stored in the `dist/` directory. To load the extension in your browser:
 
-## Running unit tests
+1. Open your browser's extensions page (e.g., `chrome://extensions/` for Chrome).
+2. Enable "Developer mode".
+3. Click "Load unpacked" and select the `dist/` directory.
+4. The extension will now be available in your browser.
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## Usage
+
+- Use the extension popup to create, view, and schedule bookmarks.
+- Bookmarks can be managed and scheduled for later access.
+- The extension uses background scripts for scheduling and Chrome Tabs API integration.
+
+## Code Scaffolding
+
+To generate a new component:
+
+```bash
+ng generate component component-name
+```
+
+For a complete list of available schematics:
+
+```bash
+ng generate --help
+```
+
+## Running Unit Tests
+
+To execute unit tests with [Karma](https://karma-runner.github.io):
 
 ```bash
 ng test
 ```
 
-## Running end-to-end tests
+## Running End-to-End Tests
 
-For end-to-end (e2e) testing, run:
+For end-to-end (e2e) testing:
 
 ```bash
 ng e2e
@@ -84,4 +97,4 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 
 ## Additional Resources
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+For more information on using the Angular CLI, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

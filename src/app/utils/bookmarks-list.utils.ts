@@ -1,13 +1,13 @@
 // Utility functions for bookmarks-list.component
-import type { Bookmark } from '../services/bookmarks-storage.service';
+import type { Bookmark } from '../bookmarks-create/bookmarks-create.model';
 
 /**
  * Returns a sorted array of unique tags from a list of bookmarks.
  */
 export function extractAllTags(bookmarks: Bookmark[]): string[] {
-    const tagSet = new Set<string>();
-    bookmarks.forEach(b => (b.tags ?? []).forEach(t => tagSet.add(t)));
-    return Array.from(tagSet).sort((a, b) => a.localeCompare(b));
+    return Array.from(
+        new Set(bookmarks.flatMap(b => b.tags ?? []))
+    ).sort((a, b) => a.localeCompare(b));
 }
 
 /**

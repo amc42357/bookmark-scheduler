@@ -11,7 +11,7 @@ import { Subscription } from 'rxjs';
 // --- App Services & Utils ---
 import { ChromeTabsService } from '../services/chrome-tabs.service';
 import { extractAllTags, removeBookmarks } from '../utils/bookmarks-list.utils';
-import { Bookmark } from '../bookmarks-create/bookmarks-create.model';
+import { Bookmark, Recurrence } from '../bookmarks-create/bookmarks-create.model';
 import { BookmarksStorageService } from '../services/bookmarks-storage.service';
 
 @Component({
@@ -58,7 +58,7 @@ export class BookmarksListComponent implements OnInit, OnDestroy {
     async loadBookmarks() {
         const bookmarks = await this.bookmarksStorage.getAll();
         // Ensure recurrence is typed as Recurrence
-        this.bookmarks = bookmarks.map(b => ({ ...b, recurrence: b.recurrence as any as Recurrence, selected: false }));
+        this.bookmarks = bookmarks.map(b => ({ ...b, recurrence: b.recurrence as Recurrence, selected: false }));
         this.allTags = extractAllTags(this.bookmarks);
         this.updateSelectionState();
     }
