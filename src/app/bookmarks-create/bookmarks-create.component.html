@@ -31,7 +31,7 @@
       <mat-label>{{ 'RECURRENCE' | translate }}</mat-label>
       <mat-select formControlName="recurrence" [placeholder]="'RECURRENCE' | translate" matTooltip="{{ 'RECURRENCE' | translate }}" matTooltipShowDelay="300">
         <mat-option *ngFor="let option of RECURRENCE_OPTIONS" [value]="option">
-          {{ ('RECURRENCE_OPTION_' + option.toUpperCase()) | translate }}
+          {{ ('RECURRENCE_OPTION_' + option.toUpperCase().replace('-', '')) | translate }}
         </mat-option>
       </mat-select>
     </mat-form-field>

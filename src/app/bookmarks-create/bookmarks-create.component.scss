@@ -30,11 +30,11 @@ $chip-color: #2d3748;
 
 .form-container {
   max-width: 400px;
-  padding: $form-padding;
+  padding: 1.5rem 2.5rem;
   background: $form-bg;
   border-radius: $form-radius;
   box-shadow: $form-shadow;
-  @include flex(column, stretch, 1.5rem);
+  @include flex(column, stretch, 1.25rem);
 
   h2 {
     text-align: center;
@@ -46,6 +46,7 @@ $chip-color: #2d3748;
 
 .form-group {
   @include flex(column, stretch, 0.5rem);
+  margin-bottom: 1.25rem;
 }
 
 label {
@@ -79,7 +80,7 @@ input[type="time"] {
 .feedback-error {
   @extend %error-text;
   font-size: 0.95em;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .form-feedback {
@@ -131,8 +132,6 @@ mat-chip {
 }
 
 mat-hint {
-  margin-top: 2px;
-  margin-bottom: 10px;
   display: block;
   color: #6b7280;
   font-size: 0.95em;
@@ -149,5 +148,10 @@ mat-hint {
 
 .tab-capture-row {
   @include flex(flex-end, center);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.mat-error {
+  margin-top: 0.5rem;
+  display: block;
 }
