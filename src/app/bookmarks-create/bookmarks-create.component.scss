@@ -67,6 +67,17 @@ input[type="time"] {
   font-size: 0.9rem;
 }
 
+.feedback-error {
+  color: $error-color;
+  font-size: 0.95em;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.form-feedback {
+  margin-bottom: 1rem;
+}
+
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -119,4 +130,20 @@ mat-hint {
   display: block;
   color: #6b7280;
   font-size: 0.95em;
+}
+
+// Accessibility helper class
+.visually-hidden {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.tab-capture-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
 }

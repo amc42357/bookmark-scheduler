@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { v4 as uuidv4 } from 'uuid';
 import { BookmarksStorageService } from '../services/bookmarks-storage.service';
-import { RECURRENCE_OPTIONS, Bookmark } from './bookmarks-create.model';
+import { RECURRENCE_OPTIONS, Bookmark, SEPARATOR_KEYS } from './bookmarks-create.model';
 import { getTodayDate, getCurrentTime } from '../utils/date-utils';
 import { captureTabInfo } from '../utils/chrome-utils';
 import { normalizeUrl, notifyBookmarkAdded, addTagUtil, removeTagUtil } from '../utils/bookmarks-create.utils';
@@ -36,13 +36,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 export class BookmarksCreateComponent implements AfterViewInit {
     readonly form: FormGroup;
     readonly RECURRENCE_OPTIONS = RECURRENCE_OPTIONS;
+    readonly separatorKeys = SEPARATOR_KEYS;
     isSubmitting = false;
 
     @ViewChild('titleInput') titleInput!: ElementRef<HTMLInputElement>;
 
     // Expose utility functions for template usage
     addTagUtil = addTagUtil;
-    captureTabInfo = captureTabInfo;
     removeTagUtil = removeTagUtil;
 
     constructor(
@@ -82,6 +82,12 @@ export class BookmarksCreateComponent implements AfterViewInit {
     }
 
     async onSubmit(): Promise<void> {
+        console.log('Form value:', this.form.value);
+        console.log('Form status:', this.form.status);
+        Object.keys(this.form.controls).forEach(key => {
+            const control = this.form.get(key);
+            console.log(`Control '${key}': value=`, control?.value, 'status=', control?.status, 'errors=', control?.errors);
+        });
         if (!this.form.valid) {
             this.form.markAllAsTouched();
             return;
@@ -94,4 +100,16 @@ export class BookmarksCreateComponent implements AfterViewInit {
         this.form.reset(this.getInitialFormState());
         this.isSubmitting = false;
     }
+
+    onUseCurrentTab() {
+        captureTabInfo(this.form);
+        this.form.get('title')?.markAsTouched();
+        this.form.get('url')?.markAsTouched();
+    }
+
+    get title() { return this.form.get('title'); }
+    get url() { return this.form.get('url'); }
+    get date() { return this.form.get('date'); }
+    get time() { return this.form.get('time'); }
+    get tags() { return this.form.get('tags'); }
 }

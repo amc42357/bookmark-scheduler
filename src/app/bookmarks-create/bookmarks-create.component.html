@@ -2,9 +2,8 @@
   <form [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off" aria-labelledby="bookmarkFormTitle">
     <h2 id="bookmarkFormTitle" class="visually-hidden">Create Bookmark</h2>
 
-    <!-- Tab capture button, visually grouped with title/url -->
     <div class="tab-capture-row">
-      <button mat-stroked-button color="accent" type="button" (click)="captureTabInfo(form)" matTooltip="Auto-fill title and URL from current browser tab" matTooltipShowDelay="300">
+      <button mat-stroked-button color="accent" type="button" (click)="onUseCurrentTab()" matTooltip="Auto-fill title and URL from current browser tab" matTooltipShowDelay="300">
         <mat-icon>link</mat-icon>
         Use Current Tab
       </button>
@@ -12,65 +11,68 @@
 
     <mat-form-field appearance="outline" class="form-group">
       <mat-label>Title</mat-label>
-      <input matInput formControlName="title" placeholder="Bookmark title" #titleInput aria-required="true" aria-label="Bookmark title" [attr.aria-invalid]="form.get('title')?.invalid && form.get('title')?.touched" matTooltip="Enter a descriptive title for your bookmark" matTooltipShowDelay="300">
-      <mat-error *ngIf="form.get('title')?.touched && form.get('title')?.invalid">
-        Title is required
-      </mat-error>
+      <input matInput formControlName="title" placeholder="Bookmark title" #titleInput [attr.aria-invalid]="title?.invalid && title?.touched" matTooltip="Enter a descriptive title for your bookmark" matTooltipShowDelay="300">
+      <mat-error *ngIf="title?.touched && title?.invalid">Title is required</mat-error>
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="form-group">
       <mat-label>URL</mat-label>
-      <input matInput type="url" formControlName="url" placeholder="https://example.com" autocomplete="off" aria-required="true" aria-label="Bookmark URL" [attr.aria-invalid]="form.get('url')?.invalid && form.get('url')?.touched" matTooltip="Paste or type the full URL" matTooltipShowDelay="300">
+      <input matInput type="url" formControlName="url" placeholder="https://example.com" autocomplete="off" [attr.aria-invalid]="url?.invalid && url?.touched" matTooltip="Paste or type the full URL" matTooltipShowDelay="300">
       <mat-hint>Paste or type the full URL</mat-hint>
-      <mat-error *ngIf="form.get('url')?.touched && form.get('url')?.invalid">
-        <ng-container *ngIf="form.get('url')?.errors?.['required']">URL is required</ng-container>
-        <ng-container *ngIf="form.get('url')?.errors?.['pattern']">Enter a valid URL</ng-container>
+      <mat-error *ngIf="url?.touched && url?.invalid">
+        <ng-container *ngIf="url?.errors?.['required']">URL is required</ng-container>
+        <ng-container *ngIf="url?.errors?.['pattern']">
+          Enter a valid URL. Example: https://example.com or http://my-site.org/path
+        </ng-container>
       </mat-error>
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="form-group">
       <mat-label>Recurrence</mat-label>
-      <mat-select formControlName="recurrence" placeholder="Select recurrence" aria-label="Recurrence" matTooltip="How often should this bookmark remind you?" matTooltipShowDelay="300">
+      <mat-select formControlName="recurrence" placeholder="Select recurrence" matTooltip="How often should this bookmark remind you?" matTooltipShowDelay="300">
         <mat-option *ngFor="let option of RECURRENCE_OPTIONS" [value]="option">{{ option | titlecase }}</mat-option>
       </mat-select>
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="form-group">
       <mat-label>Date</mat-label>
-      <input matInput type="date" formControlName="date" aria-required="true" aria-label="Date" [attr.aria-invalid]="form.get('date')?.invalid && form.get('date')?.touched" matTooltip="Select the date for the bookmark reminder" matTooltipShowDelay="300">
-      <mat-error *ngIf="form.get('date')?.touched && form.get('date')?.invalid">
-        Date is required
-      </mat-error>
+      <input matInput type="date" formControlName="date" [attr.aria-invalid]="date?.invalid && date?.touched" matTooltip="Select the date for the bookmark reminder" matTooltipShowDelay="300">
+      <mat-error *ngIf="date?.touched && date?.invalid">Date is required</mat-error>
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="form-group">
       <mat-label>Time</mat-label>
-      <input matInput type="time" formControlName="time" aria-required="true" aria-label="Time" [attr.aria-invalid]="form.get('time')?.invalid && form.get('time')?.touched" matTooltip="Select the time for the bookmark reminder" matTooltipShowDelay="300">
-      <mat-error *ngIf="form.get('time')?.touched && form.get('time')?.invalid">
-        Time is required
-      </mat-error>
+      <input matInput type="time" formControlName="time" [attr.aria-invalid]="time?.invalid && time?.touched" matTooltip="Select the time for the bookmark reminder" matTooltipShowDelay="300">
+      <mat-error *ngIf="time?.touched && time?.invalid">Time is required</mat-error>
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="form-group">
       <mat-label>Tags</mat-label>
       <mat-chip-grid #chipGrid aria-label="Bookmark tags">
-        <mat-chip-row *ngFor="let tag of form.get('tags')?.value" [removable]="true" (removed)="removeTagUtil(form, tag)">
+        <mat-chip-row *ngFor="let tag of tags?.value" [removable]="true" (removed)="removeTagUtil(form, tag)">
           {{ tag }}
           <mat-icon matChipRemove aria-label="Remove tag">cancel</mat-icon>
         </mat-chip-row>
         <input
           matChipInput
           [matChipInputFor]="chipGrid"
-          [matChipInputSeparatorKeyCodes]="[13,188]"
+          [matChipInputSeparatorKeyCodes]="separatorKeys"
           [matChipInputAddOnBlur]="true"
           (matChipInputTokenEnd)="addTagUtil(form, $event)"
           placeholder="Add tag..."
-          aria-label="Add tag"
           matTooltip="Press Enter or comma to add a tag"
           matTooltipShowDelay="300"
         />
       </mat-chip-grid>
     </mat-form-field>
+
+    <div *ngIf="form.invalid && (form.dirty || form.touched)" class="form-feedback">
+      <div *ngFor="let key of ['title','url','date','time','recurrence']">
+        <span *ngIf="form.get(key)?.invalid && (form.get(key)?.dirty || form.get(key)?.touched)" class="feedback-error">
+          {{ key | titlecase }} is invalid or missing
+        </span>
+      </div>
+    </div>
 
     <div class="form-actions">
       <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || isSubmitting" matTooltip="Save this bookmark with the provided details" matTooltipShowDelay="300" class="save-btn">
@@ -91,5 +93,18 @@
   display: flex;
   justify-content: flex-end;
   margin-bottom: 0.5rem;
+}
+
+.form-feedback {
+  background-color: #fff3f3;
+  border: 1px solid #ffcccc;
+  border-radius: 4px;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.feedback-error {
+  color: #d8000c;
+  font-size: 0.875rem;
 }
 </style>

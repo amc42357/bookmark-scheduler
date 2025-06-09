@@ -15,3 +15,7 @@ export const RECURRENCE_OPTIONS = [
     'bi-weekly',
     'monthly',
 ] as const;
+
+const ENTER_KEY_CODE = 13;
+const COMMA_KEY_CODE = 188;
+export const SEPARATOR_KEYS = [ENTER_KEY_CODE, COMMA_KEY_CODE];
