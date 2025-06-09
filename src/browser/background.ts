@@ -1,77 +1,113 @@
-console.log('Background script loaded');
+// =====================
+// Type Definitions
+// =====================
+type Recurrence = 'once' | 'daily' | 'weekly' | 'bi-weekly' | 'monthly';
 
-type Bookmark = {
+interface Bookmark {
     date: string;
     time: string;
     url: string;
     uuid: string;
-};
-
-let isChecking = false;
-
-/**
- * Checks for due bookmarks, opens them in new tabs, removes them from storage, and schedules the next check.
- */
-function checkAndOpenDueBookmarks() {
-    if (isChecking) return;
-    isChecking = true;
-    chrome.storage.local.get('bookmarks', ({ bookmarks = [] }: { bookmarks?: Bookmark[] }) => {
-        const now = Date.now();
-        const due: Bookmark[] = [];
-        let nextTime: number | null = null;
-        for (const b of bookmarks) {
-            const t = new Date(`${b.date}T${b.time}`).getTime();
-            if (t <= now) due.push(b);
-            else if (nextTime === null || t < nextTime) nextTime = t;
-        }
-        if (due.length) {
-            openOrFocusTab(new Set(due.map(b => b.url)));
-            const dueUuids = new Set(due.map(b => b.uuid));
-            const remaining = bookmarks.filter(b => !dueUuids.has(b.uuid));
-            chrome.storage.local.set({ bookmarks: remaining }, () => {
-                scheduleNextCheckWithTime(nextTime);
-                isChecking = false;
-            });
-        } else {
-            scheduleNextCheckWithTime(nextTime);
-            isChecking = false;
-        }
-    });
+    recurrence: Recurrence;
 }
 
-/**
- * Normalizes the URL by removing the trailing slash and ensuring consistent formatting.
- */
-function normalizeUrl(url: string): string {
+interface RescheduleInfo {
+    next: Occurrence;
+    nextT: number;
+}
+
+interface Occurrence {
+    date: string;
+    time: string;
+}
+
+interface ProcessedBookmarks {
+    due: Bookmark[];
+    toReschedule: Bookmark[];
+    nextTime: number | null;
+}
+
+// =====================
+// State
+// =====================
+let isChecking = false;
+
+// =====================
+// Utility Functions
+// =====================
+const normalizeUrl = (url: string): string => {
     try {
         const u = new URL(url);
-        // Remove trailing slash for consistency
         let path = u.pathname.endsWith('/') && u.pathname !== '/' ? u.pathname.slice(0, -1) : u.pathname;
         return `${u.origin}${path}${u.search}`;
     } catch {
         return url;
     }
-}
+};
 
-/**
- * Checks if a tab with the given URL is open and focuses it, otherwise opens a new tab.
- * Optimized for O(m + n) complexity by using a Map for tab lookup.
- */
-function openOrFocusTab(urls: Set<string>) {
-    const urlsArray = Array.from(urls);
-    chrome.tabs.query({}, (tabs) => {
-        // Build a map of normalized tab URLs to tab objects for O(1) lookup
-        const tabMap = new Map<string, chrome.tabs.Tab>();
-        tabs.forEach(tab => {
-            if (tab.url) {
-                tabMap.set(normalizeUrl(tab.url), tab);
+const getRescheduleInfo = (bookmark: Bookmark, t: number): RescheduleInfo | null => {
+    if (bookmark.recurrence === 'once') return null;
+    const next = getNextOccurrence(bookmark, t);
+    if (!next) return null;
+    const nextT = new Date(`${next.date}T${next.time}`).getTime();
+    return { next, nextT };
+};
+
+const getNextOccurrence = (bookmark: Bookmark, lastTime: number): Occurrence | null => {
+    if (bookmark.recurrence === 'once') return null;
+    const dt = new Date(lastTime);
+    switch (bookmark.recurrence) {
+        case 'daily': dt.setDate(dt.getDate() + 1); break;
+        case 'weekly': dt.setDate(dt.getDate() + 7); break;
+        case 'bi-weekly': dt.setDate(dt.getDate() + 14); break;
+        case 'monthly': dt.setMonth(dt.getMonth() + 1); break;
+        default: return null;
+    }
+    const yyyy = dt.getFullYear();
+    const mm = String(dt.getMonth() + 1).padStart(2, '0');
+    const dd = String(dt.getDate()).padStart(2, '0');
+    const hh = String(dt.getHours()).padStart(2, '0');
+    const min = String(dt.getMinutes()).padStart(2, '0');
+    return { date: `${yyyy}-${mm}-${dd}`, time: `${hh}:${min}` };
+};
+
+// =====================
+// Bookmark Processing
+// =====================
+const processBookmarks = (bookmarks: Bookmark[], now: number): ProcessedBookmarks => {
+    const due: Bookmark[] = [];
+    let nextTime: number | null = null;
+    const toReschedule: Bookmark[] = [];
+    for (const b of bookmarks) {
+        const t = new Date(`${b.date}T${b.time}`).getTime();
+        if (t <= now) {
+            due.push(b);
+            const reschedule = getRescheduleInfo(b, t);
+            if (reschedule) {
+                toReschedule.push({ ...b, date: reschedule.next.date, time: reschedule.next.time });
+                nextTime = nextTime === null ? reschedule.nextT : Math.min(nextTime, reschedule.nextT);
             }
-        });
+        }
+        if (t > now) {
+            nextTime = nextTime === null ? t : Math.min(nextTime, t);
+        }
+    }
+    return { due, toReschedule, nextTime };
+};
+
+const getUpdatedBookmarks = (bookmarks: Bookmark[], due: Bookmark[], toReschedule: Bookmark[]): Bookmark[] => {
+    const dueUuids = new Set(due.map(b => b.uuid));
+    return [...bookmarks.filter(b => !dueUuids.has(b.uuid)), ...toReschedule];
+};
+
+// =====================
+// Tab Management
+// =====================
+const openOrFocusTab = (urls: Set<string>): void => {
+    const urlsArray = Array.from(urls);
+    chrome.tabs.query({}, tabs => {
         urlsArray.forEach((url, index) => {
-            const normalizedTarget = normalizeUrl(url);
-            const existingTab = tabMap.get(normalizedTarget);
-            console.log(`Checking URL: ${normalizedTarget}`);
-            console.log(tabMap);
+            const existingTab = tabs.find(tab => tab.url && normalizeUrl(tab.url) === normalizeUrl(url));
             if (existingTab?.id) {
                 chrome.tabs.update(existingTab.id, { active: index === 0 });
             } else {
@@ -79,44 +115,56 @@ function openOrFocusTab(urls: Set<string>) {
             }
         });
     });
-}
+};
 
-/**
- * Schedules the next alarm for checking bookmarks based on the next due time.
- * @param nextTime The timestamp (in ms) of the next due bookmark, or null if none.
- */
-function scheduleNextCheckWithTime(nextTime: number | null) {
+const openDueBookmarks = (due: Bookmark[]): void => {
+    openOrFocusTab(new Set(due.map(b => b.url)));
+};
+
+// =====================
+// Alarm Scheduling
+// =====================
+const scheduleNextCheckWithTime = (nextTime: number | null): void => {
     chrome.alarms.clear('bookmarkCheck');
-
-    if (nextTime === null) {
-        return;
-    }
-
+    if (nextTime === null) return;
     const delayMs = Math.max(nextTime - Date.now(), 0);
-    // chrome.alarms uses minutes, so convert ms to minutes (min 0.1 min)
     const delayMin = Math.max(delayMs / 60000, 0.1);
     chrome.alarms.create('bookmarkCheck', { delayInMinutes: delayMin });
-}
+};
 
-/**
- * Listener for alarm events. Triggers bookmark check when the scheduled alarm fires.
- */
+// =====================
+// Main Logic
+// =====================
+const checkAndOpenDueBookmarks = (): void => {
+    if (isChecking) return;
+    isChecking = true;
+    chrome.storage.local.get('bookmarks', handleBookmarksCheck);
+};
+
+const handleBookmarksCheck = ({ bookmarks = [] }: { bookmarks?: Bookmark[] }): void => {
+    const now = Date.now();
+    const { due, toReschedule, nextTime } = processBookmarks(bookmarks, now);
+    if (due.length) openDueBookmarks(due);
+    const updatedBookmarks = getUpdatedBookmarks(bookmarks, due, toReschedule);
+    chrome.storage.local.set({ bookmarks: updatedBookmarks }, () => {
+        scheduleNextCheckWithTime(nextTime);
+        isChecking = false;
+    });
+};
+
+// =====================
+// Event Listeners
+// =====================
 chrome.alarms.onAlarm.addListener(alarm => {
-    if (alarm.name === 'bookmarkCheck') {
-        checkAndOpenDueBookmarks();
-    }
+    if (alarm.name === 'bookmarkCheck') checkAndOpenDueBookmarks();
 });
 
-/**
- * Listener for messages from the popup/UI. Reschedules alarms after a bookmark is added.
- */
 chrome.runtime.onMessage.addListener(message => {
-    if (message && message.type === 'BOOKMARK_ADDED') {
-        checkAndOpenDueBookmarks();
-    }
+    if (message?.type === 'BOOKMARK_ADDED') checkAndOpenDueBookmarks();
 });
 
-/**
- * Initial call to check and schedule bookmarks when the background script loads.
- */
+// =====================
+// Initialization
+// =====================
+console.log('Background script loaded');
 checkAndOpenDueBookmarks();
