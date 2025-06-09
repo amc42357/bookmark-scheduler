@@ -40,24 +40,41 @@ export class BookmarksCreateComponent implements AfterViewInit {
 
     @ViewChild('titleInput') titleInput!: ElementRef<HTMLInputElement>;
 
+    // Expose utility functions for template usage
+    addTagUtil = addTagUtil;
+    captureTabInfo = captureTabInfo;
+    removeTagUtil = removeTagUtil;
+
     constructor(
         private readonly fb: FormBuilder,
         private readonly bookmarksStorage: BookmarksStorageService
     ) {
+        const initial = this.getInitialFormState();
         this.form = this.fb.group({
-            title: ['', Validators.required],
-            date: [getTodayDate(), Validators.required],
-            time: [getCurrentTime(), Validators.required],
+            title: [initial.title, Validators.required],
+            date: [initial.date, Validators.required],
+            time: [initial.time, Validators.required],
             url: [
-                '',
+                initial.url,
                 [
                     Validators.required,
                     Validators.pattern(/^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/.*)?$/i)
                 ]
             ],
-            recurrence: [RECURRENCE_OPTIONS[0], Validators.required],
-            tags: [[]]
+            recurrence: [initial.recurrence, Validators.required],
+            tags: [initial.tags]
         });
+    }
+
+    private getInitialFormState() {
+        return {
+            title: '',
+            date: getTodayDate(),
+            time: getCurrentTime(),
+            url: '',
+            recurrence: RECURRENCE_OPTIONS[0],
+            tags: []
+        };
     }
 
     ngAfterViewInit() {
@@ -74,19 +91,7 @@ export class BookmarksCreateComponent implements AfterViewInit {
         bookmark.url = normalizeUrl(bookmark.url);
         await this.bookmarksStorage.add(bookmark);
         notifyBookmarkAdded();
-        this.form.reset({
-            title: '',
-            date: getTodayDate(),
-            time: getCurrentTime(),
-            url: '',
-            recurrence: RECURRENCE_OPTIONS[0],
-            tags: []
-        });
+        this.form.reset(this.getInitialFormState());
         this.isSubmitting = false;
     }
-
-    // Expose utility functions for template usage
-    addTagUtil = addTagUtil;
-    captureTabInfo = captureTabInfo;
-    removeTagUtil = removeTagUtil;
 }
