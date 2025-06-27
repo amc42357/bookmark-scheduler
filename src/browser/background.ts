@@ -74,29 +74,45 @@ const getNextOccurrence = (bookmark: Bookmark, lastTime: number): Occurrence | n
 // =====================
 // Bookmark Processing
 // =====================
+function processSingleBookmarkForProcessing(b: Bookmark, now: number, gracePeriod: number) {
+    const t = new Date(`${b.date}T${b.time}`).getTime();
+    let isDue = false;
+    let reschedule: RescheduleInfo | null = null;
+    let rescheduleBookmark: Bookmark | null = null;
+    let candidateNextTime: number | null = null;
+
+    if (t <= now && t >= now - gracePeriod) {
+        isDue = true;
+        reschedule = getRescheduleInfo(b, t);
+        if (reschedule) {
+            rescheduleBookmark = { ...b, date: reschedule.next.date, time: reschedule.next.time };
+            candidateNextTime = reschedule.nextT;
+        }
+    } else if (t > now) {
+        candidateNextTime = t;
+    }
+    return { isDue, rescheduleBookmark, candidateNextTime };
+}
+
 const processBookmarks = (bookmarks: Bookmark[], now: number): ProcessedBookmarks => {
     const due: Bookmark[] = [];
     let nextTime: number | null = null;
     const toReschedule: Bookmark[] = [];
     const GRACE_PERIOD_MS = 2000; // 2 seconds grace period
     for (const b of bookmarks) {
-        const t = new Date(`${b.date}T${b.time}`).getTime();
-        if (t <= now && t >= now - GRACE_PERIOD_MS) {
-            due.push(b);
-            const reschedule = getRescheduleInfo(b, t);
-            if (reschedule) {
-                toReschedule.push({ ...b, date: reschedule.next.date, time: reschedule.next.time });
-                nextTime = nextTime === null ? reschedule.nextT : Math.min(nextTime, reschedule.nextT);
-            }
+        const { isDue, rescheduleBookmark, candidateNextTime } = processSingleBookmarkForProcessing(b, now, GRACE_PERIOD_MS);
+        if (isDue) due.push(b);
+        if (rescheduleBookmark) {
+            toReschedule.push(rescheduleBookmark);
         }
-        if (t > now) {
-            nextTime = nextTime === null ? t : Math.min(nextTime, t);
+        if (candidateNextTime !== null) {
+            nextTime = nextTime === null ? candidateNextTime : Math.min(nextTime, candidateNextTime);
         }
     }
     return { due, toReschedule, nextTime };
 };
 
-const getUpdatedBookmarks = (bookmarks: Bookmark[], due: Bookmark[], toReschedule: Bookmark[]): Bookmark[] => {
+const getUpdatedBookmarks = (bookmarks: Bookmark[], toReschedule: Bookmark[]): Bookmark[] => {
     return bookmarks.map(b => toReschedule.find(tb => tb.uuid === b.uuid) ?? b);
 };
 
@@ -145,22 +161,35 @@ const handleBookmarksCheck = ({ bookmarks = [] }: { bookmarks?: Bookmark[] }): v
     const now = Date.now();
     const { due, toReschedule, nextTime } = processBookmarks(bookmarks, now);
     if (due.length) openDueBookmarks(due);
-    const updatedBookmarks = getUpdatedBookmarks(bookmarks, due, toReschedule);
-    chrome.storage.local.set({ bookmarks: updatedBookmarks }, () => {
+    // Only update storage if there are bookmarks to reschedule
+    if (toReschedule.length > 0) {
+        const updatedBookmarks = getUpdatedBookmarks(bookmarks, toReschedule);
+        chrome.storage.local.set({ bookmarks: updatedBookmarks }, () => {
+            scheduleNextCheckWithTime(nextTime);
+            isChecking = false;
+        });
+    } else {
         scheduleNextCheckWithTime(nextTime);
         isChecking = false;
-    });
+    }
 };
 
-// =====================
-// Event Listeners
-// =====================
+// Debounce for BOOKMARK_ADDED messages to avoid redundant checks
+let debounceTimeout: number | null = null;
+const DEBOUNCE_MS = 500;
+
 chrome.alarms.onAlarm.addListener(alarm => {
     if (alarm.name === 'bookmarkCheck') checkAndOpenDueBookmarks();
 });
 
 chrome.runtime.onMessage.addListener(message => {
-    if (message?.type === 'BOOKMARK_ADDED') checkAndOpenDueBookmarks();
+    if (message?.type === 'BOOKMARK_ADDED') {
+        if (debounceTimeout !== null) clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => {
+            checkAndOpenDueBookmarks();
+            debounceTimeout = null;
+        }, DEBOUNCE_MS) as unknown as number;
+    }
 });
 
 // =====================
