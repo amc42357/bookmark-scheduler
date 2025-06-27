@@ -108,7 +108,7 @@ export class BookmarksCreateComponent implements AfterViewInit {
         uuid: uuidv4(),
         url: normalizeUrl(this.form.value.url)
       };
-      
+
       await this.bookmarksStorage.add(bookmark);
       notifyBookmarkAdded();
       this.form.reset(this.initForm().value);
@@ -118,7 +118,18 @@ export class BookmarksCreateComponent implements AfterViewInit {
   }
 
   onUseCurrentTab(): void {
+    // Store current date and time values
+    const currentDate = this.form.get('date')?.value;
+    const currentTime = this.form.get('time')?.value;
+
+    // Update title and URL from current tab
     captureTabInfo(this.form);
+
+    // Restore date and time
+    if (currentDate) this.form.get('date')?.setValue(currentDate);
+    if (currentTime) this.form.get('time')?.setValue(currentTime);
+
+    // Mark title and URL as touched for validation
     ['title', 'url'].forEach(control => this.control(control)?.markAsTouched());
   }
 
@@ -130,22 +141,10 @@ export class BookmarksCreateComponent implements AfterViewInit {
     const [first, second, year] = value.split('/');
     if (!first || !second || !year) return;
 
-    const [dd, mm] = this.currentLocale === 'es' 
-      ? [first, second] 
+    const [dd, mm] = this.currentLocale === 'es'
+      ? [first, second]
       : [second, first];
 
     this.control('date')?.setValue(`${year}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`);
-  }
-
-  onDateBlur(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(input.value);
-    
-    if (!match) return;
-    
-    const [, year, month, day] = match;
-    input.value = this.currentLocale === 'es'
-      ? `${day}/${month}/${year}`
-      : `${month}/${day}/${year}`;
   }
 }

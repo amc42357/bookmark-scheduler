@@ -69,7 +69,6 @@
                  [matTooltip]="'DATE' | translate" 
                  matTooltipShowDelay="300"
                  [placeholder]="currentLocale === 'es' ? 'DD/MM/YYYY' : 'MM/DD/YYYY'"
-                 (blur)="onDateBlur($event)" 
                  (input)="onDateInput($event)"
                  required>
           <mat-error *ngIf="date?.touched && date?.invalid" role="alert">
