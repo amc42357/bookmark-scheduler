@@ -1,52 +1,88 @@
-<!-- Responsive bookmarks list with icons, edit and remove buttons -->
-<div class="bookmarks-list-container">
-  <div class="tag-filter-bar" *ngIf="showTagFilterBar">
+<div class="container">
+  <!-- Tag Filter -->
+  <div class="tag-filter" *ngIf="showTagFilterBar">
     <span>{{ 'FILTER_BY_TAG' | translate }}</span>
     <mat-chip-listbox>
-      <mat-chip-option *ngFor="let tag of allTags" [selected]="selectedTag === tag" (click)="filterByTag(tag)" (keydown.enter)="filterByTag(tag)">
+      <mat-chip-option *ngFor="let tag of allTags" 
+                     [selected]="selectedTag === tag" 
+                     (click)="filterByTag(tag)"
+                     (keydown.enter)="filterByTag(tag)">
         {{ tag }}
       </mat-chip-option>
-      <mat-chip-option *ngIf="selectedTag" color="primary" (click)="clearTagFilter()" (keydown.enter)="clearTagFilter()">
+      <mat-chip-option *ngIf="selectedTag" 
+                     color="primary" 
+                     (click)="clearTagFilter()" 
+                     (keydown.enter)="clearTagFilter()">
         {{ 'CLEAR' | translate }}
       </mat-chip-option>
     </mat-chip-listbox>
   </div>
 
-  <div class="batch-actions" *ngIf="hasBookmarks">
-    <button mat-stroked-button color="warn" (click)="toggleRemoveMode()" [class.active]="removeMode">
+  <!-- Batch Actions -->
+  <div class="actions" *ngIf="hasBookmarks">
+    <button mat-stroked-button 
+            color="warn" 
+            (click)="toggleRemoveMode()" 
+            [class.active]="removeMode">
       <mat-icon>{{ removeMode ? 'close' : 'delete' }}</mat-icon>
       {{ removeMode ? ('CANCEL_REMOVE' | translate) : ('BATCH_REMOVE' | translate) }}
     </button>
+    
     <ng-container *ngIf="removeMode">
-      <mat-checkbox [(ngModel)]="selectAllChecked" (change)="toggleSelectAll()">{{ 'SELECT_ALL' | translate }}</mat-checkbox>
-      <button mat-raised-button color="warn" (click)="removeSelected()" [disabled]="isRemoveDisabled">{{ 'REMOVE_SELECTED' | translate }}</button>
+      <mat-checkbox [(ngModel)]="selectAllChecked" 
+                  (change)="toggleSelectAll()">
+        {{ 'SELECT_ALL' | translate }}
+      </mat-checkbox>
+      <button mat-raised-button 
+              color="warn" 
+              (click)="removeSelected()" 
+              [disabled]="isRemoveDisabled">
+        {{ 'REMOVE_SELECTED' | translate }}
+      </button>
     </ng-container>
   </div>
 
-  <div *ngIf="isEmpty" class="empty-message">
-    <mat-icon>info</mat-icon> {{ 'NO_BOOKMARKS' | translate }}
+  <!-- Empty State -->
+  <div *ngIf="isEmpty" class="empty">
+    <mat-icon>info</mat-icon>
+    <span>{{ 'NO_BOOKMARKS' | translate }}</span>
   </div>
 
-  <div *ngFor="let bookmark of filteredBookmarks(); trackBy: trackByUuid" class="bookmark-card" [class.remove-mode]="removeMode">
-    <mat-checkbox *ngIf="removeMode" [(ngModel)]="bookmark.selected" (change)="onBookmarkSelectChange(bookmark)"></mat-checkbox>
-    <div class="bookmark-info">
-      <button class="bookmark-title" type="button" (click)="openLink(bookmark)">
-        <mat-icon>label</mat-icon>
-        <span>{{ bookmark.title }}</span>
-      </button>
-      <div class="bookmark-date-time">
+  <!-- Bookmarks List -->
+  <div *ngFor="let bookmark of filteredBookmarks(); trackBy: trackByUuid" 
+       class="card" 
+       [class.remove-mode]="removeMode"
+       (click)="!removeMode && openLink(bookmark)"
+       [style.cursor]="removeMode ? 'default' : 'pointer'">
+    <div class="content">
+      <div class="header-row">
+        <div class="recurrence">
+          <mat-icon>repeat</mat-icon>
+          <span>{{ ('RECURRENCE_OPTION_' + (bookmark.recurrence || '').toUpperCase().replace('-', '')) | translate }}</span>
+        </div>
+        <mat-checkbox *ngIf="removeMode"
+                    class="delete-checkbox"
+                    [(ngModel)]="bookmark.selected"
+                    (click)="$event.stopPropagation()"
+                    (change)="onBookmarkSelectChange(bookmark)">
+        </mat-checkbox>
+      </div>
+        
+        <div class="title" (click)="openLink(bookmark)">
+          <mat-icon>label</mat-icon>
+          <span>{{ bookmark.title }}</span>
+        </div>
+      
+      <div class="date-time">
         <mat-icon>event</mat-icon>
         <span>{{ bookmark.date }}</span>
         <mat-icon>schedule</mat-icon>
         <span>{{ bookmark.time }}</span>
-        <mat-icon>repeat</mat-icon>
-        <span>{{ ('RECURRENCE_OPTION_' + (bookmark.recurrence || '').toUpperCase().replace('-', '')) | translate }}</span>
       </div>
-      <div class="bookmark-tags">
-        <mat-chip-listbox aria-label="Bookmark tags">
-          <mat-chip-option *ngFor="let tag of bookmark.tags">{{ tag }}</mat-chip-option>
-        </mat-chip-listbox>
-      </div>
+      
+      <mat-chip-listbox class="tags" *ngIf="bookmark.tags?.length">
+        <mat-chip-option *ngFor="let tag of bookmark.tags">{{ tag }}</mat-chip-option>
+      </mat-chip-listbox>
     </div>
   </div>
 </div>

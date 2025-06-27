@@ -1,3 +1,33 @@
 mat-tab-group {
   min-width: 300px;
+
+  .mdc-tab__content {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .mdc-tab__text-label {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    color: inherit;
+  }
+
+  img {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+  }
+
+  .mat-mdc-tab-labels {
+    display: flex;
+    justify-content: center;
+  }
+
+  .mdc-tab-indicator__content--underline {
+    border-color: var(--mdc-tab-indicator-active-indicator-color, #6200ee);
+  }
 }

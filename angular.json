@@ -57,7 +57,17 @@
               "src/styles.sass"
             ],
             "scripts": [],
-            "outputHashing": "none"
+            "outputHashing": "all",
+            "extractLicenses": true,
+            "optimization": {
+              "scripts": true,
+              "styles": {
+                "minify": true,
+                "inlineCritical": false
+              },
+              "fonts": true
+            },
+            "aot": true
           },
           "configurations": {
             "production": {
@@ -73,7 +83,16 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "none"
+              "outputHashing": "all",
+              "optimization": {
+                "scripts": true,
+                "styles": true,
+                "fonts": true
+              },
+              "aot": true,
+              "extractLicenses": true,
+              "sourceMap": true,
+              "statsJson": true
             },
             "development": {
               "optimization": false,

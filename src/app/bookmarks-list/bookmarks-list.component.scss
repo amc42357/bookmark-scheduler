@@ -1,156 +1,263 @@
-// Converted from SASS to SCSS syntax
-// Grouped and simplified SCSS for maintainability and readability
+@use 'sass:color';
 
-// Use SASS @mixin and @extend to reduce repetition and improve maintainability
+// ==========================================================================
+// VARIABLES
+// ==========================================================================
 
-// Flex utilities
-@mixin flex-center($gap: 0.5rem) {
+// Colors
+$color-primary: #1976d2;
+$color-primary-dark: #0d47a1;
+$color-primary-light: #e3f2fd;
+$color-danger: #e53e3e;
+$color-danger-light: #fff5f5;
+$color-text: #2d3748;
+$color-text-light: #555;
+$color-text-lighter: #666;
+$color-border: #e0e0e0;
+$color-bg-light: #f8f9fa;
+$color-chip-bg: #e2e8f0;
+$color-chip-active: #3182ce;
+
+// Spacing
+$spacing-xs: 0.25rem;
+$spacing-sm: 0.5rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.5rem;
+$spacing-xl: 2rem;
+$spacing-xxl: 3rem;
+
+// Breakpoints
+$breakpoint-sm: 600px;
+
+// Transitions
+$transition-fast: 0.2s ease;
+
+// ==========================================================================
+// MIXINS
+// ==========================================================================
+
+@mixin flex-center($gap: $spacing-sm) {
   display: flex;
   align-items: center;
   gap: $gap;
 }
 
-// Card style
-%card {
-  background: #f7f7f7;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-}
-
-.bookmarks-list-container {
-  max-width: 600px;
-  margin: 2rem auto;
-  padding: 1rem;
-  background: #fff;
+@mixin card-style {
+  background: white;
+  border: 1px solid $color-border;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 1.25rem;
+  margin-bottom: $spacing-md;
+  transition: all $transition-fast;
+}
 
-  @media (max-width: 600px) {
-    padding: 0.5rem;
+// ==========================================================================
+// BASE STYLES
+// ==========================================================================
+.container {
+  max-width: 800px;
+  margin: $spacing-xl auto;
+  padding: 0 $spacing-md;
+  
+  @media (max-width: $breakpoint-sm) {
+    padding: 0 $spacing-sm;
   }
 }
 
-h2, .empty-message, .batch-actions, .tag-filter-bar {
-  @include flex-center();
-}
+// ==========================================================================
+// COMPONENT STYLES
+// ==========================================================================
 
-h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.empty-message {
-  text-align: center;
-  color: #888;
-  margin: 2rem 0;
-  justify-content: center;
-}
-
-.bookmark-card {
-  @extend %card;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+// Tag Filter
+// --------------------------------------------------------------------------
+.tag-filter {
+  @include flex-center($spacing-md);
+  margin-bottom: $spacing-lg;
   flex-wrap: wrap;
-
-  &.remove-mode {
-    border: 2px solid #e53e3e;
-    background: #fff5f5;
+  
+  > span {
+    font-weight: 500;
+    color: $color-text-light;
   }
-
-  @media (max-width: 600px) {
-    flex-direction: column;
-    align-items: stretch;
-  }
-}
-
-.bookmark-info {
-  flex: 1 1 60%;
-  min-width: 200px;
-}
-
-.bookmark-title, .bookmark-url, .bookmark-date-time {
-  @include flex-center();
-  margin-bottom: 0.5rem;
-  word-break: break-all;
-}
-
-.bookmark-title {
-  cursor: pointer;
-  color: #3182ce;
-  text-decoration: underline;
-  &:hover {
-    color: #2b6cb0;
-  }
-}
-
-.bookmark-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  align-items: flex-end;
-  margin-top: 0;
-
-  @media (max-width: 600px) {
-    flex-direction: row;
-    justify-content: flex-end;
-    margin-top: 0.5rem;
-  }
-}
-
-.batch-actions {
-  gap: 1rem;
-  margin-bottom: 1rem;
-
-  .active {
-    background: #e53e3e;
-    color: #fff;
-  }
-
-  button {
-    transition: background 0.2s, color 0.2s;
-  }
-
-  mat-checkbox {
-    .mat-checkbox-label {
-      font-size: 0.95em;
-      max-width: 90px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      display: inline-block;
-      vertical-align: middle;
+  
+  mat-chip-listbox {
+    display: inline-flex;
+    gap: $spacing-sm;
+    
+    mat-chip-option {
+      background: $color-chip-bg;
+      color: $color-text;
+      cursor: pointer;
+      transition: all $transition-fast;
+      
+      &[aria-selected="true"],
+      &[color="primary"] {
+        background: $color-chip-active;
+        color: white;
+      }
+      
+      &:hover {
+        background: color.adjust($color-chip-bg, $lightness: -10%);
+      }
     }
   }
 }
 
-.bookmark-tags {
-  margin-top: 0.25rem;
-}
-
-mat-chip-list {
-  margin-bottom: 0.5rem;
-}
-
-mat-chip {
-  background: #e2e8f0;
-  color: #2d3748;
-  margin-right: 0.25rem;
-  margin-bottom: 0.25rem;
-  cursor: pointer;
-
-  &[selected], &[color="primary"] {
-    background: #3182ce;
-    color: #fff;
+// Actions Bar
+// --------------------------------------------------------------------------
+.actions {
+  @include flex-center($spacing-md);
+  margin-bottom: $spacing-lg;
+  flex-wrap: wrap;
+  
+  button {
+    transition: all $transition-fast;
+    
+    &.active {
+      background: $color-danger;
+      color: white;
+    }
+  }
+  
+  mat-checkbox {
+    margin: 0 $spacing-sm;
+    
+    ::ng-deep .mat-checkbox-label {
+      white-space: nowrap;
+    }
   }
 }
 
-.tag-filter-bar {
-  margin-bottom: 1rem;
+// Empty State
+// --------------------------------------------------------------------------
+.empty {
+  @include flex-center($spacing-sm);
+  justify-content: center;
+  color: $color-text-lighter;
+  margin: $spacing-xxl 0;
+  text-align: center;
+  
+  mat-icon {
+    color: $color-primary;
+  }
 }
 
-mat-checkbox {
-  margin-right: 0.5rem;
+// Card
+// --------------------------------------------------------------------------
+.card {
+  @include card-style;
+  
+  .content {
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: $spacing-sm;
+      
+      .recurrence {
+        @include flex-center($spacing-xs);
+        color: $color-text-light;
+        font-size: 0.875rem;
+      }
+      
+      .delete-checkbox {
+        margin-left: $spacing-sm;
+      }
+    }
+  }
+  
+  &:not(.remove-mode):hover {
+    background: $color-bg-light;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  &.remove-mode {
+    border: 2px solid $color-danger;
+    background: $color-danger-light;
+    cursor: default;
+  }
+  
+  @media (max-width: $breakpoint-sm) {
+    flex-direction: column;
+  }
+  
+  // Content Area
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+  
+  // Recurrence Badge
+  .recurrence {
+    @include flex-center($spacing-sm);
+    background: $color-primary-light;
+    color: $color-primary-dark;
+    padding: $spacing-xs $spacing-md;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: $spacing-sm;
+    align-self: flex-start;
+    
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+  
+  // Title
+  .title {
+    @include flex-center($spacing-sm);
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: $color-primary-dark;
+    margin: $spacing-xs 0;
+    cursor: pointer;
+    
+    mat-icon {
+      color: $color-primary;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+  
+  // Date and Time
+  .date-time {
+    @include flex-center($spacing-md);
+    color: $color-text-light;
+    font-size: 0.9rem;
+    margin: $spacing-xs 0;
+    
+    mat-icon {
+      color: $color-primary;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+    
+    > * {
+      @include flex-center($spacing-xs);
+    }
+  }
+  
+  // Tags
+  .tags {
+    margin-top: $spacing-sm;
+    
+    mat-chip-option {
+      margin: $spacing-xs $spacing-sm $spacing-xs 0;
+      height: 24px;
+      font-size: 0.75rem;
+      transition: all $transition-fast;
+      
+      &:hover {
+        background: color.adjust($color-chip-bg, $lightness: -10%);
+      }
+    }
+  }
 }

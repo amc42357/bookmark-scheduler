@@ -3,7 +3,11 @@
     "name": "Bookmark Scheduler",
     "version": "1.0",
     "description": "Schedule your bookmarks to open at specific times",
+    "icons": {
+      "128": "assets/img/logo128.png"
+    },
     "action": {
+      "default_icon": "assets/img/logo128.png",
       "default_popup": "index.html"
     },
     "permissions": [
