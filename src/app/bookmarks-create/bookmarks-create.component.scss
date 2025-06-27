@@ -4,7 +4,7 @@
 
 // Component-specific styles
 .form-container {
-  @include form-container;
+  // All CSS declarations first
   max-width: 600px;
   margin: 0 auto;
   padding: 2rem;
@@ -12,13 +12,18 @@
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
-
+  
+  // Mixins and nested rules after all declarations
+  @include form-container;
+  
+  // Hover state
   &:hover {
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
   }
 }
 
 h2 {
+  // Move all declarations before any nested rules
   color: var(--mat-primary);
   margin-bottom: 2rem;
   font-weight: 500;
@@ -27,67 +32,91 @@ h2 {
 }
 
 .form-actions {
+  // Move all declarations before any nested rules
   margin-top: 2rem;
   display: flex;
   justify-content: flex-end;
   
-  button {
-    min-width: 120px;
-    padding: 0.5rem 1.5rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    
-    &:hover {
-      transform: translateY(-1px);
-    }
-    
-    &:active {
-      transform: translateY(0);
+  // Nested rules after all declarations
+  & {
+    button {
+      // Move all button declarations before any nested rules
+      min-width: 120px;
+      padding: 0.5rem 1.5rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      
+      // Nested rules after all declarations
+      & {
+        &:hover {
+          transform: translateY(-1px);
+        }
+        
+        &:active {
+          transform: translateY(0);
+        }
+      }
     }
   }
 }
 
 .tab-capture-row {
+  // Move all declarations before any nested rules
   display: flex;
   justify-content: flex-end;
   margin-bottom: 1.5rem;
   
-  button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 500;
-    
-    mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
+  // Nested rules after all declarations
+  & {
+    button {
+      // Move all button declarations before any nested rules
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      
+      // Nested rules after all declarations
+      & {
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+      }
     }
   }
 }
 
 // Form fields
 mat-form-field {
+  // Move all declarations before any nested rules
   width: 100%;
   margin-bottom: 1rem;
   
-  &.mat-mdc-form-field {
-    --mat-form-field-container-vertical-padding: 12px;
-  }
-  
-  .mat-mdc-text-field-wrapper {
-    border-radius: 8px;
-    transition: all 0.2s ease;
+  // Nested rules after all declarations
+  & {
+    &.mat-mdc-form-field {
+      --mat-form-field-container-vertical-padding: 12px;
+    }
     
-    &:hover {
-      .mat-mdc-form-field-focus-overlay {
-        opacity: 0.08;
+    .mat-mdc-text-field-wrapper {
+      // Move all wrapper declarations before any nested rules
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      
+      // Nested rules after all declarations
+      & {
+        &:hover {
+          .mat-mdc-form-field-focus-overlay {
+            opacity: 0.08;
+          }
+        }
       }
     }
-  }
-  
-  .mat-mdc-form-field-focus-overlay {
-    transition: opacity 0.2s ease;
+    
+    .mat-mdc-form-field-focus-overlay {
+      transition: opacity 0.2s ease;
+    }
   }
   
   .mdc-line-ripple {
@@ -136,27 +165,40 @@ mat-form-field {
 
 // Tags
 mat-chip-grid {
+  // Move all declarations before any nested rules
   min-height: 56px;
   padding: 8px 0;
   
-  .mdc-evolution-chip-set__chips {
-    gap: 8px;
-  }
-  
-  .mat-mdc-chip {
-    border-radius: 16px;
-    padding: 0 12px;
-    height: 32px;
-    font-size: 0.875rem;
+  // Nested rules after all declarations
+  & {
+    .mdc-evolution-chip-set__chips {
+      gap: 8px;
+    }
     
-    .mat-mdc-chip-remove {
-      opacity: 0.7;
-      transition: opacity 0.2s ease;
+    .mat-mdc-chip {
+      // Move all chip declarations before any nested rules
+      border-radius: 16px;
+      padding: 0 12px;
+      height: 32px;
+      font-size: 0.875rem;
       
-      &:hover {
-        opacity: 1;
+      // Nested rules after all declarations
+      & {
+        .mat-mdc-chip-remove {
+          // Move all remove button declarations before any nested rules
+          opacity: 0.7;
+          transition: opacity 0.2s ease;
+          
+          // Nested rules after all declarations
+          & {
+            &:hover {
+              opacity: 1;
+            }
+          }
+        }
       }
     }
+  
   }
   
   input {
@@ -193,3 +235,4 @@ mat-chip-grid {
     border-radius: 0;
   }
 }
+
