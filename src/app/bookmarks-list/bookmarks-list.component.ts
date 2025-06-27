@@ -1,19 +1,24 @@
+import { BehaviorSubject, Subscription } from 'rxjs';
 // --- Angular & 3rd Party Imports ---
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { FormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { extractAllTags, removeBookmarks } from '../utils/bookmarks-list.utils';
 
+import { Bookmark } from '../bookmarks-create/bookmarks-create.model';
+import { BookmarksStorageService } from '../services/bookmarks-storage.service';
 // --- App Services & Utils ---
 import { ChromeTabsService } from '../services/chrome-tabs.service';
-import { extractAllTags, removeBookmarks } from '../utils/bookmarks-list.utils';
-import { Bookmark, Recurrence } from '../bookmarks-create/bookmarks-create.model';
-import { BookmarksStorageService } from '../services/bookmarks-storage.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
+import { TranslateModule } from '@ngx-translate/core';
+
+// --- State ---
+
+// Define the type outside the class
+export type SelectableBookmark = Bookmark & { selected?: boolean };
 
 @Component({
     selector: 'bookmarks-list',
@@ -31,14 +36,12 @@ import { BookmarksStorageService } from '../services/bookmarks-storage.service';
     styleUrls: ['./bookmarks-list.component.scss']
 })
 export class BookmarksListComponent implements OnInit, OnDestroy {
-    // --- State ---
-    bookmarks: (Bookmark & { selected?: boolean })[] = [];
+    bookmarks$ = new BehaviorSubject<SelectableBookmark[]>([]);
     allTags: string[] = [];
     selectedTag: string | null = null;
-    selectedBookmarks: (Bookmark & { selected?: boolean })[] = [];
+    selectedBookmarksSet = new Set<string>();
     selectAllChecked = false;
     removeMode = false;
-    editMode = false;
     private subscription?: Subscription;
 
     // --- Constructor ---
@@ -57,12 +60,16 @@ export class BookmarksListComponent implements OnInit, OnDestroy {
     }
 
     // --- Data Loading & State ---
+    private mapBookmarksWithSelection(bookmarks: Bookmark[]): SelectableBookmark[] {
+        return bookmarks.map(b => ({ ...b, selected: this.selectedBookmarksSet.has(b.uuid) }));
+    }
+
     async loadBookmarks() {
         const bookmarks = await this.bookmarksStorage.getAll();
-        // Ensure recurrence is typed as Recurrence
-        this.bookmarks = bookmarks.map(b => ({ ...b, recurrence: b.recurrence as Recurrence, selected: false }));
-        this.allTags = extractAllTags(this.bookmarks);
-        this.updateSelectionState();
+        const mapped = this.mapBookmarksWithSelection(bookmarks);
+        this.bookmarks$.next(mapped);
+        this.allTags = extractAllTags(bookmarks);
+        this.updateSelectionState(bookmarks);
     }
 
     // --- Bookmark Actions ---
@@ -73,15 +80,16 @@ export class BookmarksListComponent implements OnInit, OnDestroy {
     }
     async removeSelected() {
         if (!this.removeMode) return;
-        await removeBookmarks(this.bookmarksStorage, this.selectedBookmarks);
+        const bookmarks = this.bookmarks$.value.filter(b => this.selectedBookmarksSet.has(b.uuid));
+        await removeBookmarks(this.bookmarksStorage, bookmarks);
         await this.loadBookmarks();
     }
 
     // --- Tag Filtering ---
-    filterByTag = (tag: string) => this.selectedTag = this.selectedTag === tag ? null : tag;
-    clearTagFilter = () => { this.selectedTag = null; };
-    filteredBookmarks() {
-        return !this.selectedTag ? this.bookmarks : this.bookmarks.filter(b => (b.tags ?? []).includes(this.selectedTag!));
+    filterByTag(tag: string) { this.selectedTag = this.selectedTag === tag ? null : tag; }
+    clearTagFilter() { this.selectedTag = null; }
+    filteredBookmarks(bookmarks: (Bookmark & { selected?: boolean })[]) {
+        return !this.selectedTag ? bookmarks : bookmarks.filter(b => (b.tags ?? []).includes(this.selectedTag!));
     }
 
     // --- UI Actions ---
@@ -89,36 +97,37 @@ export class BookmarksListComponent implements OnInit, OnDestroy {
         this.chromeTabs.openBookmark(bookmark);
     }
     toggleSelectAll() {
-        this.bookmarks.forEach(b => b.selected = this.selectAllChecked);
-        this.updateSelectionState();
+        const bookmarks = this.bookmarks$.value;
+        if (this.selectAllChecked) {
+            bookmarks.forEach(b => this.selectedBookmarksSet.add(b.uuid));
+        } else {
+            this.selectedBookmarksSet.clear();
+        }
+        this.updateSelectionState(bookmarks);
+        this.bookmarks$.next([...bookmarks]);
     }
     private resetSelectionState() {
-        this.bookmarks.forEach(b => b.selected = false);
+        this.selectedBookmarksSet.clear();
         this.selectAllChecked = false;
-        this.selectedBookmarks = [];
+        this.bookmarks$.next([...this.bookmarks$.value]);
     }
     toggleRemoveMode() {
         this.removeMode = !this.removeMode;
-        if (this.removeMode) {
-            this.editMode = false;
-            return;
+        if (!this.removeMode) {
+            this.resetSelectionState();
         }
-        this.resetSelectionState();
     }
-    toggleEditMode() {
-        this.editMode = !this.editMode;
-        if (this.editMode) {
-            this.removeMode = false;
-            return;
+    updateSelectionState(bookmarks: (Bookmark & { selected?: boolean })[]) {
+        this.selectAllChecked = bookmarks.length > 0 && bookmarks.every(b => this.selectedBookmarksSet.has(b.uuid));
+    }
+    onBookmarkSelectChange(bookmark: Bookmark) {
+        if (this.selectedBookmarksSet.has(bookmark.uuid)) {
+            this.selectedBookmarksSet.delete(bookmark.uuid);
+        } else {
+            this.selectedBookmarksSet.add(bookmark.uuid);
         }
-        this.resetSelectionState();
-    }
-    updateSelectionState() {
-        this.selectedBookmarks = this.bookmarks.filter(b => b.selected);
-        this.selectAllChecked = this.bookmarks.length > 0 && this.bookmarks.every(b => b.selected);
-    }
-    onBookmarkSelectChange(bookmark: Bookmark & { selected?: boolean }) {
-        this.updateSelectionState();
+        this.updateSelectionState(this.bookmarks$.value);
+        this.bookmarks$.next([...this.bookmarks$.value]);
     }
     trackByUuid(index: number, bookmark: Bookmark) {
         return bookmark.uuid;
@@ -126,15 +135,15 @@ export class BookmarksListComponent implements OnInit, OnDestroy {
 
     // --- UI Logic for Template Simplification ---
     get showTagFilterBar() {
-        return this.allTags.length > 0 && this.bookmarks.length > 0;
+        return this.allTags.length > 0 && this.bookmarks$.value.length > 0;
     }
     get hasBookmarks() {
-        return this.bookmarks.length > 0;
+        return this.bookmarks$.value.length > 0;
     }
     get isEmpty() {
-        return this.bookmarks.length === 0;
+        return this.bookmarks$.value.length === 0;
     }
     get isRemoveDisabled() {
-        return this.selectedBookmarks.length === 0;
+        return this.selectedBookmarksSet.size === 0;
     }
 }

@@ -1,7 +1,7 @@
+import type { Bookmark } from '../bookmarks-create/bookmarks-create.model';
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { getBookmarkDateTime } from '../utils/date-utils';
-import type { Bookmark } from '../bookmarks-create/bookmarks-create.model';
 
 @Injectable({
     providedIn: 'root'
@@ -9,6 +9,17 @@ import type { Bookmark } from '../bookmarks-create/bookmarks-create.model';
 export class BookmarksStorageService {
     private static readonly STORAGE_KEY = 'bookmarks'; // Key for Chrome local storage
     bookmarksChanged = new Subject<void>(); // Emits when bookmarks are updated
+
+    constructor() {
+        // Listen for external changes to bookmarks in chrome.storage
+        if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
+            chrome.storage.onChanged.addListener((changes, areaName) => {
+                if (areaName === 'local' && changes[BookmarksStorageService.STORAGE_KEY]) {
+                    this.bookmarksChanged.next();
+                }
+            });
+        }
+    }
 
     /**
      * Retrieves all bookmarks from Chrome local storage.

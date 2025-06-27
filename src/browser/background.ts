@@ -78,9 +78,10 @@ const processBookmarks = (bookmarks: Bookmark[], now: number): ProcessedBookmark
     const due: Bookmark[] = [];
     let nextTime: number | null = null;
     const toReschedule: Bookmark[] = [];
+    const GRACE_PERIOD_MS = 2000; // 2 seconds grace period
     for (const b of bookmarks) {
         const t = new Date(`${b.date}T${b.time}`).getTime();
-        if (t <= now) {
+        if (t <= now && t >= now - GRACE_PERIOD_MS) {
             due.push(b);
             const reschedule = getRescheduleInfo(b, t);
             if (reschedule) {
@@ -96,8 +97,7 @@ const processBookmarks = (bookmarks: Bookmark[], now: number): ProcessedBookmark
 };
 
 const getUpdatedBookmarks = (bookmarks: Bookmark[], due: Bookmark[], toReschedule: Bookmark[]): Bookmark[] => {
-    const dueUuids = new Set(due.map(b => b.uuid));
-    return [...bookmarks.filter(b => !dueUuids.has(b.uuid)), ...toReschedule];
+    return bookmarks.map(b => toReschedule.find(tb => tb.uuid === b.uuid) ?? b);
 };
 
 // =====================

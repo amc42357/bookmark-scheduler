@@ -59,7 +59,8 @@
       </mat-form-field>
 
       <!-- Date and Time -->
-      <div class="datetime-row">
+      <fieldset class="datetime-row date-time-fieldset">
+        <legend class="fieldset-legend">{{ 'DATE_AND_TIME' | translate }}</legend>
         <mat-form-field appearance="outline" class="form-field date-field">
           <mat-label>{{ 'DATE' | translate }}</mat-label>
           <input matInput 
@@ -89,34 +90,36 @@
             {{ 'TIME_REQUIRED' | translate }}
           </mat-error>
         </mat-form-field>
-      </div>
+      </fieldset>
 
       <!-- Tags -->
-      <mat-form-field appearance="outline" class="form-field tags-field">
-        <mat-label>{{ 'TAGS' | translate }}</mat-label>
-        <mat-chip-grid #chipGrid 
-                      [attr.aria-label]="'TAGS' | translate"
-                      role="listbox">
-          <mat-chip-row *ngFor="let tag of tags?.value" 
-                       [removable]="true" 
-                       (removed)="removeTagUtil(form, tag)"
-                       role="listitem">
-            <span class="tag-text">{{ tag }}</span>
-            <button matChipRemove 
-                    [attr.aria-label]="'REMOVE_TAG' | translate: { tag: tag }"
-                    class="tag-remove">
-              <mat-icon aria-hidden="true">cancel</mat-icon>
-            </button>
-          </mat-chip-row>
-          <input [matChipInputFor]="chipGrid" 
-                 [matChipInputSeparatorKeyCodes]="separatorKeys"
-                 matChipInputAddOnBlur 
-                 [matChipInputAddOnBlur]="true"
-                 (matChipInputTokenEnd)="addTagUtil(form, $event)"
-                 [placeholder]="'ADD_TAG' | translate"
-                 class="tag-input">
-        </mat-chip-grid>
-      </mat-form-field>
+      <fieldset class="tags-field tags-fieldset">
+        <legend class="fieldset-legend">{{ 'TAGS' | translate }}</legend>
+        <mat-form-field appearance="outline" class="form-field tags-field">
+          <mat-label>{{ 'TAGS' | translate }}</mat-label>
+          <mat-chip-grid #chipGrid [attr.aria-label]="'TAGS' | translate">
+            <ul class="tag-list">
+              <li *ngFor="let tag of tags?.value" class="tag-list-item">
+                <mat-chip-row [removable]="true" (removed)="removeTagUtil(form, tag)">
+                  <span class="tag-text">{{ tag }}</span>
+                  <button matChipRemove 
+                          [attr.aria-label]="'REMOVE_TAG' | translate: { tag: tag }"
+                          class="tag-remove">
+                    <mat-icon aria-hidden="true">cancel</mat-icon>
+                  </button>
+                </mat-chip-row>
+              </li>
+            </ul>
+            <input [matChipInputFor]="chipGrid" 
+                   [matChipInputSeparatorKeyCodes]="separatorKeys"
+                   matChipInputAddOnBlur 
+                   [matChipInputAddOnBlur]="true"
+                   (matChipInputTokenEnd)="addTagUtil(form, $event)"
+                   [placeholder]="'ADD_TAG' | translate"
+                   class="tag-input">
+          </mat-chip-grid>
+        </mat-form-field>
+      </fieldset>
     </div>
 
     <!-- Form Feedback -->

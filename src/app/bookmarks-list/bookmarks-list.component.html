@@ -49,26 +49,29 @@
   </div>
 
   <!-- Bookmarks List -->
-  <div *ngFor="let bookmark of filteredBookmarks(); trackBy: trackByUuid" 
-       class="card" 
-       [class.remove-mode]="removeMode"
-       (click)="!removeMode && openLink(bookmark)"
-       [style.cursor]="removeMode ? 'default' : 'pointer'">
-    <div class="content">
-      <div class="header-row">
-        <div class="recurrence">
-          <mat-icon>repeat</mat-icon>
-          <span>{{ ('RECURRENCE_OPTION_' + (bookmark.recurrence || '').toUpperCase().replace('-', '')) | translate }}</span>
+  <ng-container *ngIf="bookmarks$ | async as bookmarks">
+    <div *ngFor="let bookmark of filteredBookmarks(bookmarks); trackBy: trackByUuid" 
+         class="card" 
+         [class.remove-mode]="removeMode"
+         (click)="!removeMode && openLink(bookmark)"
+         (keydown.enter)="!removeMode && openLink(bookmark)"
+         [style.cursor]="removeMode ? 'default' : 'pointer'">
+      <div class="content">
+        <div class="header-row">
+          <div class="recurrence">
+            <mat-icon>repeat</mat-icon>
+            <span>{{ ('RECURRENCE_OPTION_' + (bookmark.recurrence || '').toUpperCase().replace('-', '')) | translate }}</span>
+          </div>
+          <mat-checkbox *ngIf="removeMode"
+                      class="delete-checkbox"
+                      [(ngModel)]="bookmark.selected"
+                      (click)="$event.stopPropagation()"
+                      (change)="onBookmarkSelectChange(bookmark)"
+                      (keydown.enter)="$event.stopPropagation()">
+          </mat-checkbox>
         </div>
-        <mat-checkbox *ngIf="removeMode"
-                    class="delete-checkbox"
-                    [(ngModel)]="bookmark.selected"
-                    (click)="$event.stopPropagation()"
-                    (change)="onBookmarkSelectChange(bookmark)">
-        </mat-checkbox>
-      </div>
         
-        <div class="title" (click)="openLink(bookmark)">
+        <div class="title" (click)="openLink(bookmark)" (keydown.enter)="openLink(bookmark)">
           <mat-icon>label</mat-icon>
           <span>{{ bookmark.title }}</span>
         </div>
@@ -84,5 +87,6 @@
         <mat-chip-option *ngFor="let tag of bookmark.tags">{{ tag }}</mat-chip-option>
       </mat-chip-listbox>
     </div>
-  </div>
+    </div>
+  </ng-container>
 </div>
