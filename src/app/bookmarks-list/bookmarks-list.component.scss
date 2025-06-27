@@ -1,59 +1,9 @@
 @use 'sass:color';
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+@use '../../styles/global-styles' as *;
 
-// ==========================================================================
-// VARIABLES
-// ==========================================================================
-
-// Colors
-$color-primary: #1976d2;
-$color-primary-dark: #0d47a1;
-$color-primary-light: #e3f2fd;
-$color-danger: #e53e3e;
-$color-danger-light: #fff5f5;
-$color-text: #2d3748;
-$color-text-light: #555;
-$color-text-lighter: #666;
-$color-border: #e0e0e0;
-$color-bg-light: #f8f9fa;
-$color-chip-bg: #e2e8f0;
-$color-chip-active: #3182ce;
-
-// Spacing
-$spacing-xs: 0.25rem;
-$spacing-sm: 0.5rem;
-$spacing-md: 1rem;
-$spacing-lg: 1.5rem;
-$spacing-xl: 2rem;
-$spacing-xxl: 3rem;
-
-// Breakpoints
-$breakpoint-sm: 600px;
-
-// Transitions
-$transition-fast: 0.2s ease;
-
-// ==========================================================================
-// MIXINS
-// ==========================================================================
-
-@mixin flex-center($gap: $spacing-sm) {
-  display: flex;
-  align-items: center;
-  gap: $gap;
-}
-
-@mixin card-style {
-  background: white;
-  border: 1px solid $color-border;
-  border-radius: 12px;
-  padding: 1.25rem;
-  margin-bottom: $spacing-md;
-  transition: all $transition-fast;
-}
-
-// ==========================================================================
-// BASE STYLES
-// ==========================================================================
+// Component-specific styles
 .container {
   max-width: 800px;
   margin: $spacing-xl auto;
@@ -64,12 +14,7 @@ $transition-fast: 0.2s ease;
   }
 }
 
-// ==========================================================================
-// COMPONENT STYLES
-// ==========================================================================
-
 // Tag Filter
-// --------------------------------------------------------------------------
 .tag-filter {
   @include flex-center($spacing-md);
   margin-bottom: $spacing-lg;
@@ -104,7 +49,6 @@ $transition-fast: 0.2s ease;
 }
 
 // Actions Bar
-// --------------------------------------------------------------------------
 .actions {
   @include flex-center($spacing-md);
   margin-bottom: $spacing-lg;
@@ -128,25 +72,8 @@ $transition-fast: 0.2s ease;
   }
 }
 
-// Empty State
-// --------------------------------------------------------------------------
-.empty {
-  @include flex-center($spacing-sm);
-  justify-content: center;
-  color: $color-text-lighter;
-  margin: $spacing-xxl 0;
-  text-align: center;
-  
-  mat-icon {
-    color: $color-primary;
-  }
-}
-
-// Card
-// --------------------------------------------------------------------------
+// Card specific styles
 .card {
-  @include card-style;
-  
   .content {
     .header-row {
       display: flex;
@@ -166,23 +93,10 @@ $transition-fast: 0.2s ease;
     }
   }
   
-  &:not(.remove-mode):hover {
-    background: $color-bg-light;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  }
-  
-  &.remove-mode {
-    border: 2px solid $color-danger;
-    background: $color-danger-light;
-    cursor: default;
-  }
-  
   @media (max-width: $breakpoint-sm) {
     flex-direction: column;
   }
   
-  // Content Area
   .content {
     flex: 1;
     display: flex;

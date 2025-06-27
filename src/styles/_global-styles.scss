@@ -1,0 +1,117 @@
+@use 'sass:color';
+@use './variables' as *;
+@use './mixins' as *;
+
+// Common form elements
+mat-form-field {
+  width: 100%;
+  margin-bottom: $spacing-md;
+
+  &.ng-invalid.ng-touched {
+    .mat-form-field-outline {
+      color: $error-color;
+    }
+    
+    .mat-form-field-label {
+      color: $error-color;
+    }
+  }
+}
+
+// Common buttons and actions
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-md;
+  margin-top: $spacing-md;
+}
+
+.save-btn {
+  transition: background-color 0.2s, box-shadow 0.2s;
+  
+  &:hover:not(:disabled) {
+    background-color: $color-primary;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+  }
+}
+
+// Common form feedback
+.form-feedback {
+  background-color: $color-danger-light;
+  border: 1px solid color.scale($color-danger, $lightness: 30%);
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin-bottom: $spacing-md;
+}
+
+.feedback-error {
+  color: $error-color;
+  font-size: 0.95em;
+  display: block;
+  margin-bottom: $spacing-sm;
+}
+
+// Common chips and tags
+mat-chip {
+  margin: $spacing-xs;
+  
+  [matChipRemove] {
+    opacity: 0.6;
+    
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+// Common layout utilities
+.datetime-row {
+  display: flex;
+  gap: $spacing-md;
+  
+  @media (max-width: $breakpoint-sm) {
+    flex-direction: column;
+    gap: $spacing-md;
+    
+    .date-field,
+    .time-field {
+      width: 100%;
+    }
+  }
+}
+
+// Common card styles
+.card {
+  @include card-style;
+  
+  &:hover:not(.remove-mode) {
+    background: $color-bg-light;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  &.remove-mode {
+    border: 2px solid $color-danger;
+    background: $color-danger-light;
+    cursor: default;
+  }
+}
+
+// Empty state
+.empty {
+  @include flex-center($spacing-sm);
+  justify-content: center;
+  color: $color-text-lighter;
+  margin: $spacing-xxl 0;
+  text-align: center;
+  
+  mat-icon {
+    color: $color-primary;
+  }
+}
+
+// Utility classes
+.visually-hidden {
+  @include visually-hidden;
+}
