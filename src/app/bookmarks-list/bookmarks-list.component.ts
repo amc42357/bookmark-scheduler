@@ -66,10 +66,17 @@ export class BookmarksListComponent implements OnInit, OnDestroy {
 
     async loadBookmarks() {
         const bookmarks = await this.bookmarksStorage.getAll();
-        const mapped = this.mapBookmarksWithSelection(bookmarks);
+        const now = Date.now();
+        // Filter out expired 'once' bookmarks
+        const filtered = bookmarks.filter(b => {
+            if (b.recurrence !== 'once') return true;
+            const t = new Date(`${b.date}T${b.time}`).getTime();
+            return t >= now;
+        });
+        const mapped = this.mapBookmarksWithSelection(filtered);
         this.bookmarks$.next(mapped);
-        this.allTags = extractAllTags(bookmarks);
-        this.updateSelectionState(bookmarks);
+        this.allTags = extractAllTags(filtered);
+        this.updateSelectionState(filtered);
     }
 
     // --- Bookmark Actions ---
