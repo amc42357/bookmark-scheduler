@@ -1,89 +1,132 @@
-<div class="form-container">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off" aria-labelledby="bookmarkFormTitle">
-    <h2 id="bookmarkFormTitle" class="visually-hidden">{{ 'CREATE_BOOKMARK' | translate }}</h2>
-
+<main class="form-container" role="main">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off" aria-labelledby="bookmarkFormTitle" class="bookmark-form">    
     <div class="tab-capture-row">
       <button mat-stroked-button color="accent" type="button" (click)="onUseCurrentTab()" 
-              [matTooltip]="'USE_CURRENT_TAB' | translate" matTooltipShowDelay="300">
-        <mat-icon>link</mat-icon>
-        {{ 'USE_CURRENT_TAB' | translate }}
+              [matTooltip]="'USE_CURRENT_TAB' | translate" matTooltipShowDelay="300"
+              [attr.aria-label]="'USE_CURRENT_TAB' | translate">
+        <mat-icon aria-hidden="true">link</mat-icon>
+        <span>{{ 'USE_CURRENT_TAB' | translate }}</span>
       </button>
     </div>
 
-    <!-- Title -->
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'TITLE' | translate }}</mat-label>
-      <input matInput formControlName="title" [placeholder]="'TITLE_PLACEHOLDER' | translate" #titleInput
-             [attr.aria-invalid]="title?.invalid && title?.touched"
-             [matTooltip]="'TITLE_PLACEHOLDER' | translate" matTooltipShowDelay="300">
-      <mat-error *ngIf="title?.touched && title?.invalid">
-        {{ 'TITLE_REQUIRED' | translate }}
-      </mat-error>
-    </mat-form-field>
-
-    <!-- URL -->
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'URL' | translate }}</mat-label>
-      <input matInput type="url" formControlName="url" [placeholder]="'URL_PLACEHOLDER' | translate"
-             autocomplete="off" [attr.aria-invalid]="url?.invalid && url?.touched"
-             [matTooltip]="'URL_PLACEHOLDER' | translate" matTooltipShowDelay="300">
-      <mat-hint>{{ 'URL_PLACEHOLDER' | translate }}</mat-hint>
-      <mat-error *ngIf="url?.touched && url?.invalid">
-        <ng-container *ngIf="url?.errors?.['required']">{{ 'URL_REQUIRED' | translate }}</ng-container>
-        <ng-container *ngIf="url?.errors?.['pattern']">{{ 'URL_PATTERN' | translate }}</ng-container>
-      </mat-error>
-    </mat-form-field>
-
-    <!-- Recurrence -->
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'RECURRENCE' | translate }}</mat-label>
-      <mat-select formControlName="recurrence" [matTooltip]="'RECURRENCE' | translate" matTooltipShowDelay="300">
-        <mat-option *ngFor="let option of RECURRENCE_OPTIONS" [value]="option">
-          {{ ('RECURRENCE_OPTION_' + option.toUpperCase().replace('-', '')) | translate }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <!-- Date and Time -->
-    <div class="datetime-row">
-      <mat-form-field appearance="outline" class="date-field">
-        <mat-label>{{ 'DATE' | translate }}</mat-label>
-        <input matInput type="date" formControlName="date" [attr.aria-invalid]="date?.invalid && date?.touched"
-               [matTooltip]="'DATE' | translate" matTooltipShowDelay="300"
-               [placeholder]="currentLocale === 'es' ? 'DD/MM/YYYY' : 'MM/DD/YYYY'"
-               (blur)="onDateBlur($event)" (input)="onDateInput($event)">
-        <mat-error>{{ 'DATE_REQUIRED' | translate }}</mat-error>
+    <div class="form-grid">
+      <!-- Title -->
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>{{ 'TITLE' | translate }}</mat-label>
+        <input matInput 
+               formControlName="title" 
+               [placeholder]="'TITLE_PLACEHOLDER' | translate" 
+               #titleInput
+               [attr.aria-invalid]="title?.invalid && title?.touched"
+               [matTooltip]="'TITLE_PLACEHOLDER' | translate" 
+               matTooltipShowDelay="300"
+               required>
+        <mat-error *ngIf="title?.touched && title?.invalid" role="alert">
+          {{ 'TITLE_REQUIRED' | translate }}
+        </mat-error>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="time-field">
-        <mat-label>{{ 'TIME' | translate }}</mat-label>
-        <input matInput type="time" formControlName="time" [attr.aria-invalid]="time?.invalid && time?.touched"
-               [matTooltip]="'TIME' | translate" matTooltipShowDelay="300">
-        <mat-error>{{ 'TIME_REQUIRED' | translate }}</mat-error>
+      <!-- URL -->
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>{{ 'URL' | translate }}</mat-label>
+        <input matInput 
+               type="url" 
+               formControlName="url" 
+               [placeholder]="'URL_PLACEHOLDER' | translate"
+               autocomplete="url" 
+               [attr.aria-invalid]="url?.invalid && url?.touched"
+               [matTooltip]="'URL_PLACEHOLDER' | translate" 
+               matTooltipShowDelay="300"
+               required>
+        <mat-hint>{{ 'URL_PLACEHOLDER' | translate }}</mat-hint>
+        <mat-error *ngIf="url?.touched && url?.invalid" role="alert">
+          <ng-container *ngIf="url?.errors?.['required']">{{ 'URL_REQUIRED' | translate }}</ng-container>
+          <ng-container *ngIf="url?.errors?.['pattern']">{{ 'URL_PATTERN' | translate }}</ng-container>
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Recurrence -->
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>{{ 'RECURRENCE' | translate }}</mat-label>
+        <mat-select formControlName="recurrence" 
+                   [matTooltip]="'RECURRENCE' | translate" 
+                   matTooltipShowDelay="300"
+                   required>
+          <mat-option *ngFor="let option of RECURRENCE_OPTIONS" [value]="option">
+            {{ ('RECURRENCE_OPTION_' + option.toUpperCase().replace('-', '')) | translate }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Date and Time -->
+      <div class="datetime-row">
+        <mat-form-field appearance="outline" class="form-field date-field">
+          <mat-label>{{ 'DATE' | translate }}</mat-label>
+          <input matInput 
+                 type="date" 
+                 formControlName="date" 
+                 [attr.aria-invalid]="date?.invalid && date?.touched"
+                 [matTooltip]="'DATE' | translate" 
+                 matTooltipShowDelay="300"
+                 [placeholder]="currentLocale === 'es' ? 'DD/MM/YYYY' : 'MM/DD/YYYY'"
+                 (blur)="onDateBlur($event)" 
+                 (input)="onDateInput($event)"
+                 required>
+          <mat-error *ngIf="date?.touched && date?.invalid" role="alert">
+            {{ 'DATE_REQUIRED' | translate }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field time-field">
+          <mat-label>{{ 'TIME' | translate }}</mat-label>
+          <input matInput 
+                 type="time" 
+                 formControlName="time" 
+                 [attr.aria-invalid]="time?.invalid && time?.touched"
+                 [matTooltip]="'TIME' | translate" 
+                 matTooltipShowDelay="300"
+                 required>
+          <mat-error *ngIf="time?.touched && time?.invalid" role="alert">
+            {{ 'TIME_REQUIRED' | translate }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Tags -->
+      <mat-form-field appearance="outline" class="form-field tags-field">
+        <mat-label>{{ 'TAGS' | translate }}</mat-label>
+        <mat-chip-grid #chipGrid 
+                      [attr.aria-label]="'TAGS' | translate"
+                      role="listbox">
+          <mat-chip-row *ngFor="let tag of tags?.value" 
+                       [removable]="true" 
+                       (removed)="removeTagUtil(form, tag)"
+                       role="listitem">
+            <span class="tag-text">{{ tag }}</span>
+            <button matChipRemove 
+                    [attr.aria-label]="'REMOVE_TAG' | translate: { tag: tag }"
+                    class="tag-remove">
+              <mat-icon aria-hidden="true">cancel</mat-icon>
+            </button>
+          </mat-chip-row>
+          <input [matChipInputFor]="chipGrid" 
+                 [matChipInputSeparatorKeyCodes]="separatorKeys"
+                 matChipInputAddOnBlur 
+                 [matChipInputAddOnBlur]="true"
+                 (matChipInputTokenEnd)="addTagUtil(form, $event)"
+                 [placeholder]="'ADD_TAG' | translate"
+                 class="tag-input">
+        </mat-chip-grid>
       </mat-form-field>
     </div>
 
-    <!-- Tags -->
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'TAGS' | translate }}</mat-label>
-      <mat-chip-grid #chipGrid [attr.aria-label]="'TAGS' | translate">
-        <mat-chip-row *ngFor="let tag of tags?.value" [removable]="true" (removed)="removeTagUtil(form, tag)">
-          {{ tag }}
-          <button matChipRemove>
-            <mat-icon>cancel</mat-icon>
-          </button>
-        </mat-chip-row>
-        <input [matChipInputFor]="chipGrid" [matChipInputSeparatorKeyCodes]="separatorKeys"
-               matChipInputAddOnBlur [matChipInputAddOnBlur]="true"
-               (matChipInputTokenEnd)="addTagUtil(form, $event)"
-               [placeholder]="'ADD_TAG' | translate">
-      </mat-chip-grid>
-    </mat-form-field>
-
     <!-- Form Feedback -->
-    <div *ngIf="form.invalid && (form.dirty || form.touched)" class="form-feedback">
+    <div *ngIf="form.invalid && (form.dirty || form.touched)" 
+         class="form-feedback" 
+         role="alert">
       <div *ngFor="let key of ['title','url','date','time','recurrence']">
-        <span *ngIf="form.get(key)?.invalid && (form.get(key)?.dirty || form.get(key)?.touched)" class="feedback-error">
+        <span *ngIf="form.get(key)?.invalid && (form.get(key)?.dirty || form.get(key)?.touched)" 
+              class="feedback-error">
           {{ (key | titlecase) + ' ' + ('IS_INVALID_OR_MISSING' | translate) }}
         </span>
       </div>
@@ -91,13 +134,22 @@
 
     <!-- Submit Button -->
     <div class="form-actions">
-      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || isSubmitting"
-              [matTooltip]="'SAVE' | translate" matTooltipShowDelay="300" class="save-btn">
-        <mat-icon *ngIf="!isSubmitting">add_circle</mat-icon>
-        <mat-spinner *ngIf="isSubmitting" diameter="24" class="spinner"></mat-spinner>
+      <button mat-raised-button 
+              color="primary" 
+              type="submit" 
+              [disabled]="form.invalid || isSubmitting"
+              [matTooltip]="'SAVE' | translate" 
+              matTooltipShowDelay="300" 
+              class="save-btn"
+              [attr.aria-label]="('SAVE' | translate) || 'Save'">
+        <mat-icon *ngIf="!isSubmitting" aria-hidden="true">add_circle</mat-icon>
+        <mat-spinner *ngIf="isSubmitting" 
+                    diameter="24" 
+                    class="spinner"
+                    aria-hidden="true"></mat-spinner>
         <span *ngIf="!isSubmitting">{{ 'SAVE' | translate }}</span>
         <span *ngIf="isSubmitting" class="visually-hidden">{{ 'SAVING' | translate }}</span>
       </button>
     </div>
   </form>
-</div>
+</main>

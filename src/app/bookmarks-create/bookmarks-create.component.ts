@@ -10,6 +10,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { A11yModule } from '@angular/cdk/a11y';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { BookmarksStorageService } from '../services/bookmarks-storage.service';
@@ -32,6 +33,7 @@ import { normalizeUrl, notifyBookmarkAdded, addTagUtil, removeTagUtil } from '..
     MatSelectModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    A11yModule,
     TranslateModule
   ],
   templateUrl: './bookmarks-create.component.html',

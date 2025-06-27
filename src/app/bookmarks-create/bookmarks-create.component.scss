@@ -5,27 +5,191 @@
 // Component-specific styles
 .form-container {
   @include form-container;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: var(--mat-sidenav-container-background-color, #fff);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+  }
+}
+
+h2 {
+  color: var(--mat-primary);
+  margin-bottom: 2rem;
+  font-weight: 500;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.form-actions {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: flex-end;
+  
+  button {
+    min-width: 120px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-1px);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+  }
 }
 
 .tab-capture-row {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: $spacing-lg;
+  margin-bottom: 1.5rem;
+  
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
 }
 
-// Date and time field specific styles
-.datetime-row {
-  .date-field {
-    flex: 2;
+// Form fields
+mat-form-field {
+  width: 100%;
+  margin-bottom: 1rem;
+  
+  &.mat-mdc-form-field {
+    --mat-form-field-container-vertical-padding: 12px;
   }
   
-  .time-field {
-    flex: 1;
+  .mat-mdc-text-field-wrapper {
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      .mat-mdc-form-field-focus-overlay {
+        opacity: 0.08;
+      }
+    }
+  }
+  
+  .mat-mdc-form-field-focus-overlay {
+    transition: opacity 0.2s ease;
+  }
+  
+  .mdc-line-ripple {
+    display: none;
+  }
+  
+  .mat-mdc-form-field-infix {
+    min-height: 48px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+  
+  .mat-mdc-form-field-subscript-wrapper {
+    margin-top: 4px;
+  }
+  
+  .mat-mdc-form-field-error {
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+  
+  .mat-mdc-form-field-hint {
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--mat-secondary-text);
   }
 }
 
-// Spinner
+// Date and time fields
+.datetime-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  
+  .date-field,
+  .time-field {
+    flex: 1;
+    min-width: 0; // Prevents flex items from overflowing
+  }
+  
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+// Tags
+mat-chip-grid {
+  min-height: 56px;
+  padding: 8px 0;
+  
+  .mdc-evolution-chip-set__chips {
+    gap: 8px;
+  }
+  
+  .mat-mdc-chip {
+    border-radius: 16px;
+    padding: 0 12px;
+    height: 32px;
+    font-size: 0.875rem;
+    
+    .mat-mdc-chip-remove {
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
+      
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+  
+  input {
+    min-width: 120px;
+    margin: 4px 0;
+    font-size: 0.875rem;
+  }
+}
+
+// Spinner and loading state
 .spinner {
   margin-right: 8px;
   vertical-align: middle;
+  --mdc-circular-progress-active-indicator-color: currentColor;
+}
+
+// Form feedback
+.form-feedback {
+  margin-top: 1rem;
+  
+  .feedback-error {
+    display: block;
+    color: var(--mat-warn);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 600px) {
+  .form-container {
+    padding: 1.5rem;
+    border-radius: 0;
+  }
 }
