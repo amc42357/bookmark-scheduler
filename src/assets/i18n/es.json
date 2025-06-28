@@ -31,5 +31,9 @@
   "CLEAR": "Limpiar",
   "IS_INVALID_OR_MISSING": "es inválido o falta",
   "SELECT_ALL": "Todo",
-  "BOOKMARKS": "Marcadores"
+  "BOOKMARKS": "Marcadores",
+  "SHOW_ALERT": {
+    "LABEL": "Mostrar notificación al abrir",
+    "HINT": "Mostrar una notificación cuando se abra este marcador automáticamente"
+  }
 }

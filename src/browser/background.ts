@@ -9,6 +9,8 @@ interface Bookmark {
     url: string;
     uuid: string;
     recurrence: Recurrence;
+    alert?: boolean;
+    title?: string;
 }
 
 interface RescheduleInfo {
@@ -133,7 +135,32 @@ const openOrFocusTab = (urls: Set<string>): void => {
     });
 };
 
+const showAlert = (bookmark: Bookmark): void => {
+    if (!bookmark.alert) return;
+    
+    const title = 'Bookmark Scheduler';
+    const message = bookmark.title 
+        ? `Scheduled bookmark opened: ${bookmark.title}`
+        : 'A scheduled bookmark has been opened';
+    
+    // Create a notification
+    chrome.notifications.create({
+        type: 'basic',
+        iconUrl: 'assets/img/logo128.png',
+        title,
+        message,
+        priority: 2
+    });};
+
 const openDueBookmarks = (due: Bookmark[]): void => {
+    // First show alerts for bookmarks that have alerts enabled
+    due.forEach(bookmark => {
+        if (bookmark.alert) {
+            showAlert(bookmark);
+        }
+    });
+    
+    // Then open all the bookmarks
     openOrFocusTab(new Set(due.map(b => b.url)));
 };
 

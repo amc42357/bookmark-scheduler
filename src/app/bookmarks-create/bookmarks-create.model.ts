@@ -9,6 +9,7 @@ export interface Bookmark {
     url: string;
     recurrence: Recurrence;
     tags: string[];
+    alert?: boolean;
 }
 export const RECURRENCE_OPTIONS: Recurrence[] = [
     'once',

@@ -3,6 +3,16 @@
 @use '../../styles/global-styles' as *;
 
 // Component-specific styles
+.alert-checkbox-container {
+  display: inline-flex;
+  cursor: pointer;
+  
+  // Ensure the tooltip works on the entire container
+  ::ng-deep .mat-checkbox-layout {
+    cursor: pointer;
+  }
+}
+
 .form-container {
   // All CSS declarations first
   max-width: 600px;

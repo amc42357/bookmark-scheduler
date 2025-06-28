@@ -89,6 +89,20 @@
       </mat-error>
     </mat-form-field>
 
+    <!-- Alert Toggle -->
+    <div class="form-field">
+      <div class="alert-checkbox-container" 
+           [matTooltip]="'SHOW_ALERT.HINT' | translate"
+           matTooltipPosition="right"
+           matTooltipShowDelay="300">
+        <mat-checkbox 
+          formControlName="alert" 
+          color="primary">
+          {{ 'SHOW_ALERT.LABEL' | translate }}
+        </mat-checkbox>
+      </div>
+    </div>
+
     <!-- Tags -->
     <mat-form-field appearance="outline" class="form-field tags-field">
       <mat-label>{{ 'TAGS' | translate }}</mat-label>

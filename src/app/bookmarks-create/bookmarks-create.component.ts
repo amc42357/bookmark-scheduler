@@ -10,6 +10,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { A11yModule } from '@angular/cdk/a11y';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -33,6 +34,7 @@ import { normalizeUrl, notifyBookmarkAdded, addTagUtil, removeTagUtil } from '..
     MatSelectModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    MatCheckboxModule,
     A11yModule,
     TranslateModule
   ],
@@ -73,7 +75,8 @@ export class BookmarksCreateComponent implements AfterViewInit {
         ]
       ],
       recurrence: [RECURRENCE_OPTIONS[0], Validators.required],
-      tags: [[]]
+      tags: [[]],
+      alert: [false]
     };
 
     return this.fb.group(initialValues);

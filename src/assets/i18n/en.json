@@ -31,5 +31,9 @@
   "CLEAR": "Clear",
   "IS_INVALID_OR_MISSING": "is invalid or missing",
   "SELECT_ALL": "All",
-  "BOOKMARKS": "Bookmarks"
+  "BOOKMARKS": "Bookmarks",
+  "SHOW_ALERT": {
+    "LABEL": "Show alert when opened",
+    "HINT": "Show a notification when this bookmark is automatically opened"
+  }
 }
